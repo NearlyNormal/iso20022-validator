@@ -635,6 +635,21 @@ function validate(xmlString, forceSchema) {
   var schema = schemaRegistry[detectedType];
   result.messageType = schema.messageType;
 
+  // Check for version mismatch — validate anyway but add a warning
+  var docNs = doc.documentElement.namespaceURI || '';
+  var docVersionMatch = docNs.match(/iso:20022:tech:xsd:([a-z]+\.\d+)\.(\d+\.\d+)/);
+  var schemaVersionMatch = schema.namespace.match(/iso:20022:tech:xsd:([a-z]+\.\d+)\.(\d+\.\d+)/);
+  if (docVersionMatch && schemaVersionMatch && docVersionMatch[2] !== schemaVersionMatch[2]) {
+    var docFullType = docNs.match(/iso:20022:tech:xsd:([a-z]+\.\d+\.\d+\.\d+)/);
+    var schemaFullType = schema.namespace.match(/iso:20022:tech:xsd:([a-z]+\.\d+\.\d+\.\d+)/);
+    result.warnings.push({
+      type: 'version', field: null,
+      message: 'Your message is version ' + (docFullType ? docFullType[1] : docVersionMatch[1] + '.' + docVersionMatch[2]) +
+        ', validated against ' + (schemaFullType ? schemaFullType[1] : schema.messageType) +
+        '. Some fields may differ between versions.'
+    });
+  }
+
   var businessRoot = doc.documentElement.getElementsByTagNameNS('*', schema.rootElement)[0];
   if (!businessRoot) {
     result.errors.push({ type: 'structure', field: null, message: 'Root element <' + schema.rootElement + '> not found' });
