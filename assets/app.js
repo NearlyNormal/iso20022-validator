@@ -623,7 +623,12 @@ function validate(xmlString, forceSchema) {
 
   var detectedType = forceSchema || detectMessageType(doc);
   if (!detectedType || !schemaRegistry[detectedType]) {
-    result.errors.push({ type: 'schema', field: null, message: 'Unknown message type. Namespace: ' + (doc.documentElement.namespaceURI || 'none') });
+    var ns = doc.documentElement.namespaceURI || '';
+    var nsMatch = ns.match(/iso:20022:tech:xsd:([a-z]+\.\d+\.\d+\.\d+)/);
+    var typeId = nsMatch ? nsMatch[1] : null;
+    result.unsupported = true;
+    result.unsupportedType = typeId;
+    result.unsupportedNamespace = ns;
     return result;
   }
 
@@ -736,6 +741,34 @@ var lastResult = null;
 function renderResults(result, xmlString) {
   lastResult = result;
   resultsContent.innerHTML = '';
+
+  // Handle unsupported message types with info banner
+  if (result.unsupported) {
+    var summary = document.createElement('div');
+    summary.className = 'validation-summary summary-info';
+    var typeLabel = result.unsupportedType
+      ? '<span class="msg-type-badge">' + esc(result.unsupportedType) + '</span>'
+      : 'This message type';
+    summary.innerHTML =
+      '<span uk-icon="icon: info; ratio: 1.1"></span>' +
+      '<span>' + typeLabel + ' is not yet supported</span>';
+    resultsContent.appendChild(summary);
+
+    var innerWrap = document.createElement('div');
+    innerWrap.className = 'results-body-inner';
+    var infoBox = document.createElement('div');
+    infoBox.className = 'unsupported-info';
+    infoBox.innerHTML =
+      '<p>This validator does not currently have a schema for this ISO 20022 message type.</p>' +
+      (result.unsupportedNamespace ? '<p class="unsupported-ns">Namespace: <code>' + esc(result.unsupportedNamespace) + '</code></p>' : '') +
+      '<p class="unsupported-supported">Supported types: ' +
+      Object.keys(schemaRegistry).map(function(k) {
+        return '<span class="msg-type-badge msg-type-badge-sm">' + k + '</span>';
+      }).join(' ') + '</p>';
+    innerWrap.appendChild(infoBox);
+    resultsContent.appendChild(innerWrap);
+    return;
+  }
 
   var summary = document.createElement('div');
   summary.className = 'validation-summary ' + (result.valid ? 'summary-valid' : 'summary-invalid');

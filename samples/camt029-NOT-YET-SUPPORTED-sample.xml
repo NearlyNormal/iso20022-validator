@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.029.001.03">
+  <RsltnOfInvstgtn>
+
+    <Assgnmt>
+      <Id>CASE-20260221-0001</Id>
+      <Assgnr>
+        <Agt>
+          <FinInstnId>
+            <BIC>DABADKKK</BIC>
+          </FinInstnId>
+        </Agt>
+      </Assgnr>
+      <Assgne>
+        <Agt>
+          <FinInstnId>
+            <BIC>NWBKGB2L</BIC>
+          </FinInstnId>
+        </Agt>
+      </Assgne>
+      <CreDtTm>2026-02-21T15:30:00Z</CreDtTm>
+    </Assgnmt>
+
+    <RslvdCase>
+      <Id>INV-20260221-045</Id>
+      <Cretr>
+        <Agt>
+          <FinInstnId>
+            <BIC>DABADKKK</BIC>
+          </FinInstnId>
+        </Agt>
+      </Cretr>
+    </RslvdCase>
+
+    <Sts>
+      <Conf>CNCL</Conf>
+    </Sts>
+
+  </RsltnOfInvstgtn>
+</Document>
