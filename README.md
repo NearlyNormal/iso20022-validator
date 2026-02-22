@@ -20,11 +20,33 @@ It helps teams at banks of any size, payment processors, and fintech companies c
 |------|-------------|
 | `pacs.008.001` | FI to FI Customer Credit Transfer |
 | `pain.001.001` | Customer Credit Transfer Initiation |
+| `pain.002.001` | Customer Payment Status Report |
 | `pacs.002.001` | FI to FI Payment Status Report |
 | `camt.053.001` | Bank to Customer Statement |
+| `camt.052.001` | Bank to Customer Account Report (Intraday) |
+| `pain.008.001` | Customer Direct Debit Initiation |
+| `pacs.010.001` | FI to FI Direct Debit |
 | `camt.054.001` | Bank to Customer Debit/Credit Notification |
 | `pacs.004.001` | Payment Return |
 | `pacs.009.001` | FI to FI Financial Institution Credit Transfer |
+
+## Message type coverage
+
+The 7 message types we support are a solid starting set but only scratch the surface. ISO 20022 has **hundreds** of message types across multiple business domains.
+
+**Notable ones we're missing in payments alone:**
+- **pacs.003** — FI-to-FI Direct Debit
+- **camt.056** — FI-to-FI Payment Cancellation Request
+- **camt.029** — Resolution of Investigation
+
+**Entire other business domains we don't touch:**
+- **Securities (sese, seev, semt, setr)** — hundreds of messages for trade settlement, corporate actions, portfolio management
+- **Trade Finance (tsmt, tsin)** — letters of credit, guarantees
+- **Foreign Exchange (fxtr)** — FX confirmations
+- **Cards (caaa, caam, caad)** — card payments
+- **Mandates (pain.009–012)** — direct debit mandate management
+
+In practice, the 7 we have cover the **most commonly validated payment flows** — which is what banks and fintechs typically need for testing. The tool is designed to be extensible (adding a new type is just a schema object + sample XML), so you could add more over time if needed.
 
 ## What gets validated
 

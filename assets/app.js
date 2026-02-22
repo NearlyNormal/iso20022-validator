@@ -217,6 +217,134 @@ var schemaRegistry = {
       'Creditor Institution BIC': 'CdtTrfTxInf/Cdtr/FinInstnId/BICFI',
     },
   },
+
+  'pain.002': {
+    messageType: 'pain.002.001',
+    rootElement: 'CstmrPmtStsRpt',
+    namespace: 'urn:iso:std:iso:20022:tech:xsd:pain.002.001.10',
+    description: 'Customer Payment Status Report',
+    mandatoryPaths: [
+      'GrpHdr/MsgId','GrpHdr/CreDtTm',
+      'OrgnlGrpInfAndSts/OrgnlMsgId','OrgnlGrpInfAndSts/OrgnlMsgNmId',
+      'OrgnlPmtInfAndSts/OrgnlPmtInfId','OrgnlPmtInfAndSts/TxInfAndSts/TxSts',
+    ],
+    codeValues: {
+      'OrgnlPmtInfAndSts/TxInfAndSts/TxSts': ['ACCP','ACSC','ACSP','ACTC','ACWC','ACWP','PDNG','RCVD','RJCT','CANC'],
+      'OrgnlPmtInfAndSts/TxInfAndSts/StsRsnInf/Rsn/Cd': [
+        'AC01','AC04','AC06','AG01','AG02','AM01','AM02','AM03','AM04','AM05','AM09','AM10',
+        'BE01','BE04','BE05','DT01','FF01','MD01','MS02','MS03','RC01',
+        'RR01','RR02','RR03','RR04','TM01',
+      ],
+    },
+    formatRules: [
+      { path: 'GrpHdr/MsgId', maxLength: 35 },
+      { path: 'GrpHdr/CreDtTm', type: 'ISODateTime' },
+      { path: 'OrgnlGrpInfAndSts/OrgnlMsgId', maxLength: 35 },
+    ],
+    extractionMap: {
+      'Message ID': 'GrpHdr/MsgId','Creation Date': 'GrpHdr/CreDtTm',
+      'Original Message ID': 'OrgnlGrpInfAndSts/OrgnlMsgId',
+      'Original Message Type': 'OrgnlGrpInfAndSts/OrgnlMsgNmId',
+      'Original Payment Info ID': 'OrgnlPmtInfAndSts/OrgnlPmtInfId',
+      'Transaction Status': 'OrgnlPmtInfAndSts/TxInfAndSts/TxSts',
+      'Status Reason Code': 'OrgnlPmtInfAndSts/TxInfAndSts/StsRsnInf/Rsn/Cd',
+    },
+  },
+
+  'pain.008': {
+    messageType: 'pain.008.001',
+    rootElement: 'CstmrDrctDbtInitn',
+    namespace: 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.08',
+    description: 'Customer Direct Debit Initiation',
+    mandatoryPaths: [
+      'GrpHdr/MsgId','GrpHdr/CreDtTm','GrpHdr/NbOfTxs','GrpHdr/InitgPty/Nm',
+      'PmtInf/PmtInfId','PmtInf/PmtMtd','PmtInf/NbOfTxs','PmtInf/ReqdColltnDt/Dt',
+      'PmtInf/Cdtr/Nm','PmtInf/CdtrAcct/Id','PmtInf/CdtrAgt/FinInstnId',
+      'PmtInf/DrctDbtTxInf/PmtId/EndToEndId','PmtInf/DrctDbtTxInf/InstdAmt',
+      'PmtInf/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/MndtId','PmtInf/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/DtOfSgntr',
+      'PmtInf/DrctDbtTxInf/DbtrAgt/FinInstnId','PmtInf/DrctDbtTxInf/Dbtr/Nm','PmtInf/DrctDbtTxInf/DbtrAcct/Id',
+    ],
+    codeValues: {
+      'PmtInf/PmtMtd': ['DD'],
+      'PmtInf/PmtTpInf/SeqTp': ['FRST','RCUR','FNAL','OOFF'],
+      'PmtInf/PmtTpInf/LclInstrm/Cd': ['CORE','B2B'],
+    },
+    formatRules: [
+      { path: 'GrpHdr/MsgId', maxLength: 35 },
+      { path: 'GrpHdr/CreDtTm', type: 'ISODateTime' },
+      { path: 'GrpHdr/NbOfTxs', pattern: /^\d{1,15}$/ },
+      { path: 'PmtInf/ReqdColltnDt/Dt', type: 'ISODate' },
+      { path: 'PmtInf/DrctDbtTxInf/InstdAmt', type: 'ActiveCurrencyAndAmount', attribute: 'Ccy' },
+      { path: 'PmtInf/DrctDbtTxInf/PmtId/EndToEndId', maxLength: 35 },
+    ],
+    extractionMap: {
+      'Message ID': 'GrpHdr/MsgId','Creation Date': 'GrpHdr/CreDtTm','Transactions': 'GrpHdr/NbOfTxs',
+      'Initiating Party': 'GrpHdr/InitgPty/Nm','Payment Method': 'PmtInf/PmtMtd',
+      'Collection Date': 'PmtInf/ReqdColltnDt/Dt','Sequence Type': 'PmtInf/PmtTpInf/SeqTp',
+      'Creditor': 'PmtInf/Cdtr/Nm','Creditor IBAN': 'PmtInf/CdtrAcct/Id/IBAN',
+      'End-to-End ID': 'PmtInf/DrctDbtTxInf/PmtId/EndToEndId',
+      'Amount': 'PmtInf/DrctDbtTxInf/InstdAmt','Currency': 'PmtInf/DrctDbtTxInf/InstdAmt@Ccy',
+      'Mandate ID': 'PmtInf/DrctDbtTxInf/DrctDbtTx/MndtRltdInf/MndtId',
+      'Debtor': 'PmtInf/DrctDbtTxInf/Dbtr/Nm','Debtor IBAN': 'PmtInf/DrctDbtTxInf/DbtrAcct/Id/IBAN',
+    },
+  },
+
+  'pacs.010': {
+    messageType: 'pacs.010.001',
+    rootElement: 'FIDrctDbt',
+    namespace: 'urn:iso:std:iso:20022:tech:xsd:pacs.010.001.03',
+    description: 'FI to FI Direct Debit',
+    mandatoryPaths: [
+      'GrpHdr/MsgId','GrpHdr/CreDtTm','GrpHdr/NbOfTxs','GrpHdr/SttlmInf/SttlmMtd',
+      'CdtInstr/CdtId','CdtInstr/IntrBkSttlmAmt',
+      'CdtInstr/Cdtr/FinInstnId','CdtInstr/Dbtr/FinInstnId',
+    ],
+    codeValues: {
+      'GrpHdr/SttlmInf/SttlmMtd': ['CLRG','COVE','INDA','INGA'],
+    },
+    formatRules: [
+      { path: 'GrpHdr/MsgId', maxLength: 35 },
+      { path: 'GrpHdr/CreDtTm', type: 'ISODateTime' },
+      { path: 'GrpHdr/NbOfTxs', pattern: /^\d{1,15}$/ },
+      { path: 'CdtInstr/IntrBkSttlmAmt', type: 'ActiveCurrencyAndAmount', attribute: 'Ccy' },
+    ],
+    extractionMap: {
+      'Message ID': 'GrpHdr/MsgId','Creation Date': 'GrpHdr/CreDtTm','Transactions': 'GrpHdr/NbOfTxs',
+      'Settlement Method': 'GrpHdr/SttlmInf/SttlmMtd','Credit ID': 'CdtInstr/CdtId',
+      'Amount': 'CdtInstr/IntrBkSttlmAmt','Currency': 'CdtInstr/IntrBkSttlmAmt@Ccy',
+      'Creditor Institution BIC': 'CdtInstr/Cdtr/FinInstnId/BICFI',
+      'Debtor Institution BIC': 'CdtInstr/Dbtr/FinInstnId/BICFI',
+    },
+  },
+
+  'camt.052': {
+    messageType: 'camt.052.001',
+    rootElement: 'BkToCstmrAcctRpt',
+    namespace: 'urn:iso:std:iso:20022:tech:xsd:camt.052.001.08',
+    description: 'Bank to Customer Account Report (Intraday)',
+    mandatoryPaths: [
+      'GrpHdr/MsgId','GrpHdr/CreDtTm','Rpt/Id','Rpt/CreDtTm',
+      'Rpt/Acct/Id','Rpt/Acct/Ccy','Rpt/Bal/Tp/CdOrPrtry/Cd','Rpt/Bal/Amt',
+      'Rpt/Bal/CdtDbtInd','Rpt/Bal/Dt/Dt',
+    ],
+    codeValues: {
+      'Rpt/Bal/CdtDbtInd': ['CRDT','DBIT'],
+      'Rpt/Bal/Tp/CdOrPrtry/Cd': ['OPBD','CLBD','CLAV','FWAV','INFO','ITBD','ITAV','PRCD','XPCD'],
+    },
+    formatRules: [
+      { path: 'GrpHdr/MsgId', maxLength: 35 },
+      { path: 'GrpHdr/CreDtTm', type: 'ISODateTime' },
+      { path: 'Rpt/Bal/Amt', type: 'ActiveOrHistoricCurrencyAndAmount', attribute: 'Ccy' },
+      { path: 'Rpt/Bal/Dt/Dt', type: 'ISODate' },
+    ],
+    extractionMap: {
+      'Message ID': 'GrpHdr/MsgId','Creation Date': 'GrpHdr/CreDtTm','Report ID': 'Rpt/Id',
+      'Account ID': 'Rpt/Acct/Id/IBAN','Account Currency': 'Rpt/Acct/Ccy',
+      'Balance Type': 'Rpt/Bal/Tp/CdOrPrtry/Cd','Balance Amount': 'Rpt/Bal/Amt',
+      'Balance Currency': 'Rpt/Bal/Amt@Ccy','Credit/Debit': 'Rpt/Bal/CdtDbtInd',
+      'Balance Date': 'Rpt/Bal/Dt/Dt',
+    },
+  },
 };
 
 // ─── SAMPLE XML (inlined) ───
@@ -234,6 +362,14 @@ var sampleXMLData = {
   'pacs004': '<?xml version="1.0" encoding="UTF-8"?>\n<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.004.001.09">\n  <PmtRtr>\n    <GrpHdr>\n      <MsgId>PACS004-20250116-001</MsgId>\n      <CreDtTm>2025-01-16T08:15:00</CreDtTm>\n      <NbOfTxs>1</NbOfTxs>\n      <SttlmInf><SttlmMtd>CLRG</SttlmMtd></SttlmInf>\n    </GrpHdr>\n    <TxInf>\n      <OrgnlGrpInf>\n        <OrgnlMsgId>PACS008-20250115-001</OrgnlMsgId>\n        <OrgnlMsgNmId>pacs.008.001.08</OrgnlMsgNmId>\n      </OrgnlGrpInf>\n      <OrgnlEndToEndId>E2E-PACS008-001</OrgnlEndToEndId>\n      <RtrdIntrBkSttlmAmt Ccy="EUR">10000.00</RtrdIntrBkSttlmAmt>\n      <IntrBkSttlmDt>2025-01-16</IntrBkSttlmDt>\n      <RtrRsnInf>\n        <Rsn><Cd>AC04</Cd></Rsn>\n      </RtrRsnInf>\n    </TxInf>\n  </PmtRtr>\n</Document>',
 
   'pacs009': '<?xml version="1.0" encoding="UTF-8"?>\n<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.009.001.08">\n  <FICdtTrf>\n    <GrpHdr>\n      <MsgId>PACS009-20250115-001</MsgId>\n      <CreDtTm>2025-01-15T13:00:00</CreDtTm>\n      <NbOfTxs>1</NbOfTxs>\n      <SttlmInf><SttlmMtd>COVE</SttlmMtd></SttlmInf>\n    </GrpHdr>\n    <CdtTrfTxInf>\n      <PmtId>\n        <EndToEndId>E2E-PACS009-001</EndToEndId>\n      </PmtId>\n      <IntrBkSttlmAmt Ccy="USD">500000.00</IntrBkSttlmAmt>\n      <IntrBkSttlmDt>2025-01-15</IntrBkSttlmDt>\n      <Dbtr>\n        <FinInstnId><BICFI>BNPAFRPP</BICFI></FinInstnId>\n      </Dbtr>\n      <Cdtr>\n        <FinInstnId><BICFI>NWBKGB2L</BICFI></FinInstnId>\n      </Cdtr>\n    </CdtTrfTxInf>\n  </FICdtTrf>\n</Document>',
+
+  'pain002': '<?xml version="1.0" encoding="UTF-8"?>\n<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.002.001.10">\n  <CstmrPmtStsRpt>\n    <GrpHdr>\n      <MsgId>PAIN002-20250115-001</MsgId>\n      <CreDtTm>2025-01-15T12:00:00</CreDtTm>\n    </GrpHdr>\n    <OrgnlGrpInfAndSts>\n      <OrgnlMsgId>PAIN001-20250115-001</OrgnlMsgId>\n      <OrgnlMsgNmId>pain.001.001.09</OrgnlMsgNmId>\n      <GrpSts>ACSC</GrpSts>\n    </OrgnlGrpInfAndSts>\n    <OrgnlPmtInfAndSts>\n      <OrgnlPmtInfId>PMT-BATCH-20250115-001</OrgnlPmtInfId>\n      <TxInfAndSts>\n        <OrgnlEndToEndId>E2E-PAIN001-001</OrgnlEndToEndId>\n        <TxSts>ACSC</TxSts>\n        <AccptncDtTm>2025-01-15T11:58:00</AccptncDtTm>\n      </TxInfAndSts>\n    </OrgnlPmtInfAndSts>\n  </CstmrPmtStsRpt>\n</Document>',
+
+  'pain008': '<?xml version="1.0" encoding="UTF-8"?>\n<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.08">\n  <CstmrDrctDbtInitn>\n    <GrpHdr>\n      <MsgId>PAIN008-20250120-001</MsgId>\n      <CreDtTm>2025-01-20T08:00:00</CreDtTm>\n      <NbOfTxs>1</NbOfTxs>\n      <CtrlSum>1500.00</CtrlSum>\n      <InitgPty>\n        <Nm>EuroGym Fitness GmbH</Nm>\n      </InitgPty>\n    </GrpHdr>\n    <PmtInf>\n      <PmtInfId>DD-BATCH-20250120-001</PmtInfId>\n      <PmtMtd>DD</PmtMtd>\n      <NbOfTxs>1</NbOfTxs>\n      <CtrlSum>1500.00</CtrlSum>\n      <PmtTpInf>\n        <SeqTp>RCUR</SeqTp>\n        <LclInstrm><Cd>CORE</Cd></LclInstrm>\n      </PmtTpInf>\n      <ReqdColltnDt>\n        <Dt>2025-01-25</Dt>\n      </ReqdColltnDt>\n      <Cdtr>\n        <Nm>EuroGym Fitness GmbH</Nm>\n      </Cdtr>\n      <CdtrAcct>\n        <Id><IBAN>DE89370400440532013000</IBAN></Id>\n      </CdtrAcct>\n      <CdtrAgt>\n        <FinInstnId><BICFI>COBADEFFXXX</BICFI></FinInstnId>\n      </CdtrAgt>\n      <CdtrSchmeId>\n        <Id><PrvtId><Othr><Id>DE98ZZZ09999999999</Id></Othr></PrvtId></Id>\n      </CdtrSchmeId>\n      <DrctDbtTxInf>\n        <PmtId>\n          <EndToEndId>E2E-DD-001</EndToEndId>\n        </PmtId>\n        <InstdAmt Ccy="EUR">1500.00</InstdAmt>\n        <DrctDbtTx>\n          <MndtRltdInf>\n            <MndtId>MNDT-2024-0042</MndtId>\n            <DtOfSgntr>2024-03-15</DtOfSgntr>\n          </MndtRltdInf>\n        </DrctDbtTx>\n        <DbtrAgt>\n          <FinInstnId><BICFI>BNPAFRPP</BICFI></FinInstnId>\n        </DbtrAgt>\n        <Dbtr>\n          <Nm>Jean-Pierre Dupont</Nm>\n        </Dbtr>\n        <DbtrAcct>\n          <Id><IBAN>FR7630006000011234567890189</IBAN></Id>\n        </DbtrAcct>\n      </DrctDbtTxInf>\n    </PmtInf>\n  </CstmrDrctDbtInitn>\n</Document>',
+
+  'pacs010': '<?xml version="1.0" encoding="UTF-8"?>\n<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.010.001.03">\n  <FIDrctDbt>\n    <GrpHdr>\n      <MsgId>PACS010-20250115-001</MsgId>\n      <CreDtTm>2025-01-15T14:00:00</CreDtTm>\n      <NbOfTxs>1</NbOfTxs>\n      <SttlmInf><SttlmMtd>CLRG</SttlmMtd></SttlmInf>\n    </GrpHdr>\n    <CdtInstr>\n      <CdtId>CDTID-20250115-001</CdtId>\n      <IntrBkSttlmAmt Ccy="EUR">75000.00</IntrBkSttlmAmt>\n      <IntrBkSttlmDt>2025-01-15</IntrBkSttlmDt>\n      <Cdtr>\n        <FinInstnId><BICFI>COBADEFFXXX</BICFI></FinInstnId>\n      </Cdtr>\n      <Dbtr>\n        <FinInstnId><BICFI>BNPAFRPP</BICFI></FinInstnId>\n      </Dbtr>\n    </CdtInstr>\n  </FIDrctDbt>\n</Document>',
+
+  'camt052': '<?xml version="1.0" encoding="UTF-8"?>\n<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.052.001.08">\n  <BkToCstmrAcctRpt>\n    <GrpHdr>\n      <MsgId>CAMT052-20250115-001</MsgId>\n      <CreDtTm>2025-01-15T12:00:00</CreDtTm>\n    </GrpHdr>\n    <Rpt>\n      <Id>RPT-20250115-001</Id>\n      <CreDtTm>2025-01-15T12:00:00</CreDtTm>\n      <Acct>\n        <Id><IBAN>GB29NWBK60161331926819</IBAN></Id>\n        <Ccy>GBP</Ccy>\n      </Acct>\n      <Bal>\n        <Tp><CdOrPrtry><Cd>ITBD</Cd></CdOrPrtry></Tp>\n        <Amt Ccy="GBP">148250.00</Amt>\n        <CdtDbtInd>CRDT</CdtDbtInd>\n        <Dt><Dt>2025-01-15</Dt></Dt>\n      </Bal>\n      <Ntry>\n        <Amt Ccy="GBP">5000.00</Amt>\n        <CdtDbtInd>CRDT</CdtDbtInd>\n        <Sts><Cd>BOOK</Cd></Sts>\n        <BookgDt><Dt>2025-01-15</Dt></BookgDt>\n        <ValDt><Dt>2025-01-15</Dt></ValDt>\n      </Ntry>\n    </Rpt>\n  </BkToCstmrAcctRpt>\n</Document>',
 };
 
 // ─── DOM REFS ───
@@ -280,6 +416,8 @@ var sampleFileMap = {
   'auto': 'pacs008', 'pacs.008': 'pacs008', 'pain.001': 'pain001',
   'pacs.002': 'pacs002', 'camt.053': 'camt053', 'camt.054': 'camt054',
   'pacs.004': 'pacs004', 'pacs.009': 'pacs009',
+  'pain.002': 'pain002', 'pain.008': 'pain008',
+  'pacs.010': 'pacs010', 'camt.052': 'camt052',
 };
 
 // Sample dropdown click handler
