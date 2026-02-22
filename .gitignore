@@ -1,8 +1,8 @@
 .DS_Store
 /vendor/
 node_modules/
-*.log
-.env
 __plan.md
 /tests/
+*.log
+.env
 

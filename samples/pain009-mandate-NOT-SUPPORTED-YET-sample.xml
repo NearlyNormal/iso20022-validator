@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.009.001.02">
+  <MndtInitnReq>
+
+    <GrpHdr>
+      <MsgId>MSG-20260221-0001</MsgId>
+      <CreDtTm>2026-02-21T15:30:00</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <InitgPty>
+        <Nm>Example Corporate Ltd</Nm>
+      </InitgPty>
+    </GrpHdr>
+
+    <Mndt>
+      <MndtId>MND-20260221-001</MndtId>
+      <MndtReqId>MNDREQ-20260221-001</MndtReqId>
+
+      <Tp>
+        <SvcLvl>
+          <Cd>SEPA</Cd>
+        </SvcLvl>
+      </Tp>
+
+      <Ocrncs>
+        <SeqTp>FRST</SeqTp>
+      </Ocrncs>
+
+      <Cdtr>
+        <Nm>Example Corporate Ltd</Nm>
+      </Cdtr>
+
+      <CdtrAcct>
+        <Id>
+          <IBAN>DE89370400440532013000</IBAN>
+        </Id>
+      </CdtrAcct>
+
+      <CdtrAgt>
+        <FinInstnId>
+          <BIC>DEUTDEFF</BIC>
+        </FinInstnId>
+      </CdtrAgt>
+
+      <Dbtr>
+        <Nm>John Smith</Nm>
+      </Dbtr>
+
+      <DbtrAcct>
+        <Id>
+          <IBAN>FR1420041010050500013M02606</IBAN>
+        </Id>
+      </DbtrAcct>
+
+      <DbtrAgt>
+        <FinInstnId>
+          <BIC>BNPAFRPP</BIC>
+        </FinInstnId>
+      </DbtrAgt>
+
+      <RfrdDoc>
+        <Tp>
+          <CdOrPrtry>
+            <Cd>MSIN</Cd>
+          </CdOrPrtry>
+        </Tp>
+        <Nb>Mandate Contract Ref 7788</Nb>
+      </RfrdDoc>
+
+    </Mndt>
+
+  </MndtInitnReq>
+</Document>

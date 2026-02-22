@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02">
+  <CstmrDrctDbtInitn>
+
+    <GrpHdr>
+      <MsgId>DD-INIT-20260221-0001</MsgId>
+      <CreDtTm>2026-02-21T15:30:00</CreDtTm>
+      <NbOfTxs>2</NbOfTxs>
+      <CtrlSum>349.90</CtrlSum>
+      <InitgPty>
+        <Nm>Example Corporate Ltd</Nm>
+        <Id>
+          <OrgId>
+            <Othr>
+              <Id>EXCORP-CA-00001</Id>
+              <SchmeNm>
+                <Prtry>CLIENT-ID</Prtry>
+              </SchmeNm>
+            </Othr>
+          </OrgId>
+        </Id>
+      </InitgPty>
+    </GrpHdr>
+
+    <PmtInf>
+      <PmtInfId>PMTINF-20260221-CORE-01</PmtInfId>
+      <PmtMtd>DD</PmtMtd>
+      <NbOfTxs>2</NbOfTxs>
+      <CtrlSum>349.90</CtrlSum>
+
+      <PmtTpInf>
+        <SvcLvl>
+          <Cd>SEPA</Cd>
+        </SvcLvl>
+        <LclInstrm>
+          <Cd>CORE</Cd>
+        </LclInstrm>
+        <SeqTp>RCUR</SeqTp>
+      </PmtTpInf>
+
+      <ReqdColltnDt>2026-02-24</ReqdColltnDt>
+
+      <Cdtr>
+        <Nm>Example Corporate Ltd</Nm>
+        <PstlAdr>
+          <Ctry>DE</Ctry>
+          <AdrLine>1 Main Street</AdrLine>
+          <AdrLine>Frankfurt</AdrLine>
+        </PstlAdr>
+      </Cdtr>
+
+      <CdtrAcct>
+        <Id>
+          <IBAN>DE89370400440532013000</IBAN>
+        </Id>
+        <Ccy>EUR</Ccy>
+      </CdtrAcct>
+
+      <CdtrAgt>
+        <FinInstnId>
+          <BIC>DEUTDEFF</BIC>
+        </FinInstnId>
+      </CdtrAgt>
+
+      <ChrgBr>SLEV</ChrgBr>
+
+      <CdtrSchmeId>
+        <Id>
+          <PrvtId>
+            <Othr>
+              <Id>DE98ZZZ09999999999</Id>
+              <SchmeNm>
+                <Prtry>SEPA</Prtry>
+              </SchmeNm>
+            </Othr>
+          </PrvtId>
+        </Id>
+      </CdtrSchmeId>
+
+      <UltmtCdtr>
+        <Nm>Example Corporate Holdings BV</Nm>
+        <Id>
+          <OrgId>
+            <Othr>
+              <Id>EXHOLD-001</Id>
+              <SchmeNm>
+                <Prtry>GROUP-ID</Prtry>
+              </SchmeNm>
+            </Othr>
+          </OrgId>
+        </Id>
+      </UltmtCdtr>
+
+      <!-- ===== Transaction 1 ===== -->
+      <DrctDbtTxInf>
+        <PmtId>
+          <InstrId>INST-20260221-0001</InstrId>
+          <EndToEndId>E2E-20260221-0001</EndToEndId>
+        </PmtId>
+
+        <InstdAmt Ccy="EUR">299.90</InstdAmt>
+
+        <DrctDbtTx>
+          <MndtRltdInf>
+            <MndtId>MND-18492</MndtId>
+            <DtOfSgntr>2025-11-05</DtOfSgntr>
+            <AmdmntInd>false</AmdmntInd>
+            <SeqTp>RCUR</SeqTp>
+          </MndtRltdInf>
+        </DrctDbtTx>
+
+        <UltmtDbtr>
+          <Nm>Customer A Holding Co</Nm>
+          <Id>
+            <OrgId>
+              <Othr>
+                <Id>CUSTA-HOLD-7788</Id>
+                <SchmeNm>
+                  <Prtry>CUSTOMER-ID</Prtry>
+                </SchmeNm>
+              </Othr>
+            </OrgId>
+          </Id>
+        </UltmtDbtr>
+
+        <DbtrAgt>
+          <FinInstnId>
+            <BIC>BNPAFRPP</BIC>
+          </FinInstnId>
+        </DbtrAgt>
+
+        <Dbtr>
+          <Nm>Customer A Subsidiary</Nm>
+          <PstlAdr>
+            <Ctry>FR</Ctry>
+            <AdrLine>22 Rue Example</AdrLine>
+            <AdrLine>Paris</AdrLine>
+          </PstlAdr>
+        </Dbtr>
+
+        <DbtrAcct>
+          <Id>
+            <IBAN>FR1420041010050500013M02606</IBAN>
+          </Id>
+        </DbtrAcct>
+
+        <Purp>
+          <Cd>OTHR</Cd>
+        </Purp>
+
+        <RmtInf>
+          <Ustrd>Invoice 18492, monthly subscription</Ustrd>
+          <Strd>
+            <RfrdDocInf>
+              <Tp>
+                <CdOrPrtry>
+                  <Cd>CINV</Cd>
+                </CdOrPrtry>
+              </Tp>
+              <Nb>18492</Nb>
+              <RltdDt>2026-02-01</RltdDt>
+            </RfrdDocInf>
+            <RfrdDocAmt>
+              <DuePyblAmt Ccy="EUR">299.90</DuePyblAmt>
+            </RfrdDocAmt>
+            <CdtrRefInf>
+              <Tp>
+                <CdOrPrtry>
+                  <Cd>SCOR</Cd>
+                </CdOrPrtry>
+              </Tp>
+              <Ref>RF18539007547034</Ref>
+            </CdtrRefInf>
+          </Strd>
+        </RmtInf>
+      </DrctDbtTxInf>
+
+      <!-- ===== Transaction 2 (shows an amendment) ===== -->
+      <DrctDbtTxInf>
+        <PmtId>
+          <InstrId>INST-20260221-0002</InstrId>
+          <EndToEndId>E2E-20260221-0002</EndToEndId>
+        </PmtId>
+
+        <InstdAmt Ccy="EUR">50.00</InstdAmt>
+
+        <DrctDbtTx>
+          <MndtRltdInf>
+            <MndtId>MND-77110</MndtId>
+            <DtOfSgntr>2024-06-15</DtOfSgntr>
+            <AmdmntInd>true</AmdmntInd>
+
+            <AmdmntInfDtls>
+              <OrgnlMndtId>MND-77110-OLD</OrgnlMndtId>
+              <OrgnlDbtrAcct>
+                <Id>
+                  <IBAN>FR7630006000011234567890189</IBAN>
+                </Id>
+              </OrgnlDbtrAcct>
+              <OrgnlDbtrAgt>
+                <FinInstnId>
+                  <BIC>AGRIFRPP</BIC>
+                </FinInstnId>
+              </OrgnlDbtrAgt>
+            </AmdmntInfDtls>
+
+            <SeqTp>RCUR</SeqTp>
+          </MndtRltdInf>
+        </DrctDbtTx>
+
+        <DbtrAgt>
+          <FinInstnId>
+            <BIC>SOGEFRPP</BIC>
+          </FinInstnId>
+        </DbtrAgt>
+
+        <Dbtr>
+          <Nm>Customer B</Nm>
+        </Dbtr>
+
+        <DbtrAcct>
+          <Id>
+            <IBAN>FR7630006000019876543210123</IBAN>
+          </Id>
+        </DbtrAcct>
+
+        <Purp>
+          <Cd>CHRG</Cd>
+        </Purp>
+
+        <RmtInf>
+          <Ustrd>Service charge, February</Ustrd>
+        </RmtInf>
+      </DrctDbtTxInf>
+
+    </PmtInf>
+
+  </CstmrDrctDbtInitn>
+</Document>

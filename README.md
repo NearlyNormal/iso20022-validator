@@ -2,7 +2,13 @@
 
 ## The problem
 
-Banks and financial institutions worldwide are migrating to ISO 20022, a new standard for how payment messages are structured. Every wire transfer, direct debit, and bank statement will eventually use this format. The messages are XML files with strict rules about what fields are required, what values are allowed, and how data should be formatted.
+Banks and financial institutions worldwide are migrating to [ISO 20022](https://www.iso20022.org/), a universal standard for how payment messages are structured. Every wire transfer, direct debit, and bank statement will eventually use this format. The messages are XML files with strict rules about what fields are required, what values are allowed, and how data should be formatted.
+
+The standard organises messages into families by function:
+
+- **pain** (Payments Initiation) — customer-initiated messages: credit transfers, direct debits, status reports between a customer and their bank
+- **pacs** (Payments Clearing and Settlement) — FI-to-FI messages: the interbank instructions that move money between financial institutions
+- **camt** (Cash Management) — reporting and investigation: account statements, notifications, balance reports, and exception handling
 
 Getting these messages wrong means failed payments, rejected transactions, and delays that cost real money. Today, the tools available to check these messages before sending them are either expensive enterprise software or require setting up complex development environments. A payments engineer at a small bank or fintech startup faces the same XML formatting requirements as JPMorgan, but without the same tooling budget.
 
@@ -32,7 +38,7 @@ It helps teams at banks of any size, payment processors, and fintech companies c
 
 ## Message type coverage
 
-The 7 message types we support are a solid starting set but only scratch the surface. ISO 20022 has **hundreds** of message types across multiple business domains.
+The 11 message types we support are a solid starting set but only scratch the surface. ISO 20022 has **hundreds** of message types across multiple business domains.
 
 **Notable ones we're missing in payments alone:**
 - **pacs.003** — FI-to-FI Direct Debit
@@ -46,7 +52,7 @@ The 7 message types we support are a solid starting set but only scratch the sur
 - **Cards (caaa, caam, caad)** — card payments
 - **Mandates (pain.009–012)** — direct debit mandate management
 
-In practice, the 7 we have cover the **most commonly validated payment flows** — which is what banks and fintechs typically need for testing. The tool is designed to be extensible (adding a new type is just a schema object + sample XML), so you could add more over time if needed.
+In practice, the 11 we have cover the **most commonly validated payment flows** — which is what banks and fintechs typically need for testing. The tool is designed to be extensible (adding a new type is just a schema object + sample XML), so you could add more over time if needed.
 
 ## What gets validated
 
@@ -94,6 +100,14 @@ iso20022-validator/
 ## Tech stack
 
 Vanilla HTML, CSS, and JavaScript. Browser-native `DOMParser` for XML parsing. No Node.js, no npm, no build step, no server.
+
+## Further reading
+
+- [ISO 20022 — Official site](https://www.iso20022.org/) — the standard's home, with the full message catalogue and business justification
+- [ISO 20022 Message Definitions](https://www.iso20022.org/iso-20022-message-definitions) — browse every message type by business domain
+- [ISO 20022 Catalogue of Messages](https://www.iso20022.org/catalogue-messages/additional-content-messages/iso-20022-message-definitions-full-catalogue) — full downloadable catalogue with XSD schemas
+- [SWIFT ISO 20022 Programme](https://www.swift.com/standards/iso-20022) — SWIFT's migration timeline and adoption guides
+- [SWIFT MyStandards](https://www.swift.com/our-solutions/compliance-and-shared-services/swift-mystandards) — community-maintained usage guidelines and market practice rules
 
 ## License
 
