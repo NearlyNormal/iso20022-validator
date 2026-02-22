@@ -531,6 +531,43 @@ var profileRegistry = {
       { path: 'PmtInf/CdtrSchmeId/Id/PrvtId/Othr/Id', maxLength: 35 },
     ],
   },
+  'pacs.008+BR_SPI': {
+    baseSchema: 'pacs.008',
+    name: 'Brazil SPI/Pix',
+    description: 'Central Bank of Brazil SPI instant payment scheme rules',
+    additionalMandatory: [
+      'CdtTrfTxInf/DbtrAgt/FinInstnId/BICFI',
+      'CdtTrfTxInf/CdtrAgt/FinInstnId/BICFI',
+      'CdtTrfTxInf/ChrgBr',
+      'CdtTrfTxInf/PmtTpInf/SvcLvl/Cd',
+    ],
+    restrictedCodes: {
+      'GrpHdr/SttlmInf/SttlmMtd': ['CLRG'],
+      'CdtTrfTxInf/ChrgBr': ['SHAR'],
+    },
+    additionalFormatRules: [
+      { path: 'CdtTrfTxInf/DbtrAgt/FinInstnId/BICFI', pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/ },
+      { path: 'CdtTrfTxInf/CdtrAgt/FinInstnId/BICFI', pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/ },
+    ],
+  },
+  'pacs.008+MX_SPEI': {
+    baseSchema: 'pacs.008',
+    name: 'Mexico SPEI',
+    description: 'Banco de Mexico SPEI ISO 20022 usage rules',
+    additionalMandatory: [
+      'CdtTrfTxInf/DbtrAgt/FinInstnId/BICFI',
+      'CdtTrfTxInf/CdtrAgt/FinInstnId/BICFI',
+      'CdtTrfTxInf/ChrgBr',
+    ],
+    restrictedCodes: {
+      'GrpHdr/SttlmInf/SttlmMtd': ['CLRG'],
+      'CdtTrfTxInf/ChrgBr': ['SHAR'],
+    },
+    additionalFormatRules: [
+      { path: 'CdtTrfTxInf/DbtrAgt/FinInstnId/BICFI', pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/ },
+      { path: 'CdtTrfTxInf/CdtrAgt/FinInstnId/BICFI', pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/ },
+    ],
+  },
 };
 
 // ─── DOM REFS ───

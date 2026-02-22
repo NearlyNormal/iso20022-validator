@@ -148,17 +148,25 @@ The table below shows which Layer 2 profiles are currently implemented and which
 
 ### Currently implemented
 
-| Profile | Base message | Region | Description |
-|---------|-------------|--------|-------------|
-| SEPA Core Direct Debit | pain.008 | Europe | EPC Core Direct Debit rulebook |
-| SEPA B2B Direct Debit | pain.008 | Europe | EPC Business-to-Business Direct Debit rulebook |
-| SEPA Credit Transfer | pacs.008 | Europe | EPC Credit Transfer rulebook |
-| SEPA Instant Credit Transfer | pacs.008 | Europe | EPC SCT Inst rulebook |
-| SWIFT CBPR+ | pacs.008 | Cross-border | SWIFT Cross-Border Payments and Reporting Plus |
-| UK CHAPS | pacs.008 | United Kingdom | Bank of England CHAPS ISO 20022 implementation |
-| US Fedwire | pacs.008 | United States | Federal Reserve Fedwire Funds Service |
-| US TCH RTP | pacs.008 | United States | The Clearing House Real-Time Payments |
-| Canadian PAD | pain.008 | Canada | Payments Canada Pre-Authorized Debit (Rule H1) |
+| Profile | Base message | Description |
+|---------|-------------|-------------|
+| | | **Europe: SEPA** |
+| SEPA Core Direct Debit | pain.008 | EPC Core Direct Debit rulebook |
+| SEPA B2B Direct Debit | pain.008 | EPC Business-to-Business Direct Debit rulebook |
+| SEPA Credit Transfer | pacs.008 | EPC Credit Transfer rulebook |
+| SEPA Instant Credit Transfer | pacs.008 | EPC SCT Inst rulebook |
+| | | **Cross-border** |
+| SWIFT CBPR+ | pacs.008 | SWIFT Cross-Border Payments and Reporting Plus |
+| | | **United Kingdom** |
+| UK CHAPS | pacs.008 | Bank of England CHAPS ISO 20022 implementation |
+| | | **United States** |
+| US Fedwire | pacs.008 | Federal Reserve Fedwire Funds Service |
+| US TCH RTP | pacs.008 | The Clearing House Real-Time Payments |
+| | | **Canada** |
+| Canadian PAD | pain.008 | Payments Canada Pre-Authorized Debit (Rule H1) |
+| | | **Latin America** |
+| Brazil SPI/Pix | pacs.008 | Central Bank of Brazil SPI instant payment scheme |
+| Mexico SPEI | pacs.008 | Banco de Mexico SPEI ISO 20022 usage rules |
 
 ### Roadmap: profiles not yet implemented
 
@@ -182,8 +190,6 @@ These appear as disabled entries in the profile dropdown.
   - India RTGS
   - India UPI ISO overlay
 - **Latin America**
-  - Brazil SPI/Pix (ISO 20022-native, Central Bank of Brazil)
-  - Mexico SPEI (migration to ISO 20022 announced)
   - Colombia Bre-B (early-stage interoperability platform)
   - Chile TEF (early-stage migration planning)
 - **Switzerland**
