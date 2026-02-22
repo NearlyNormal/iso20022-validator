@@ -391,7 +391,10 @@ function updateHighlighting(xmlText) {
   }
 }
 
-textarea.addEventListener('input', function() { updateHighlighting(textarea.value); });
+textarea.addEventListener('input', function() {
+  updateHighlighting(textarea.value);
+  messageTypeSelect.value = 'auto';
+});
 
 textarea.addEventListener('scroll', function() {
   highlightPre.scrollTop = textarea.scrollTop;
@@ -406,6 +409,7 @@ fileUpload.addEventListener('change', function(e) {
   reader.onload = function(ev) {
     textarea.value = ev.target.result;
     updateHighlighting(ev.target.result);
+    messageTypeSelect.value = 'auto';
   };
   reader.readAsText(file);
   fileUpload.value = '';
