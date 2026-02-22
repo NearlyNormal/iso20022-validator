@@ -372,6 +372,65 @@ var sampleXMLData = {
   'camt052': '<?xml version="1.0" encoding="UTF-8"?>\n<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.052.001.08">\n  <BkToCstmrAcctRpt>\n    <GrpHdr>\n      <MsgId>CAMT052-20250115-001</MsgId>\n      <CreDtTm>2025-01-15T12:00:00</CreDtTm>\n    </GrpHdr>\n    <Rpt>\n      <Id>RPT-20250115-001</Id>\n      <CreDtTm>2025-01-15T12:00:00</CreDtTm>\n      <Acct>\n        <Id><IBAN>GB29NWBK60161331926819</IBAN></Id>\n        <Ccy>GBP</Ccy>\n      </Acct>\n      <Bal>\n        <Tp><CdOrPrtry><Cd>ITBD</Cd></CdOrPrtry></Tp>\n        <Amt Ccy="GBP">148250.00</Amt>\n        <CdtDbtInd>CRDT</CdtDbtInd>\n        <Dt><Dt>2025-01-15</Dt></Dt>\n      </Bal>\n      <Ntry>\n        <Amt Ccy="GBP">5000.00</Amt>\n        <CdtDbtInd>CRDT</CdtDbtInd>\n        <Sts><Cd>BOOK</Cd></Sts>\n        <BookgDt><Dt>2025-01-15</Dt></BookgDt>\n        <ValDt><Dt>2025-01-15</Dt></ValDt>\n      </Ntry>\n    </Rpt>\n  </BkToCstmrAcctRpt>\n</Document>',
 };
 
+// ─── PROFILE OVERLAY DEFINITIONS ───
+var profileRegistry = {
+  'pain.008+SEPA_CORE': {
+    baseSchema: 'pain.008',
+    name: 'SEPA Core Direct Debit',
+    description: 'EPC SEPA Core Direct Debit scheme rules',
+    additionalMandatory: [
+      'PmtInf/PmtTpInf/SvcLvl/Cd',
+      'PmtInf/PmtTpInf/LclInstrm/Cd',
+      'PmtInf/PmtTpInf/SeqTp',
+      'PmtInf/CdtrSchmeId/Id/PrvtId/Othr/Id',
+      'PmtInf/CdtrSchmeId/Id/PrvtId/Othr/SchmeNm/Prtry',
+    ],
+    restrictedCodes: {
+      'PmtInf/PmtTpInf/SvcLvl/Cd': ['SEPA'],
+      'PmtInf/PmtTpInf/LclInstrm/Cd': ['CORE'],
+      'PmtInf/PmtTpInf/SeqTp': ['FRST', 'RCUR', 'OOFF', 'FNAL'],
+    },
+    additionalFormatRules: [
+      { path: 'PmtInf/CdtrSchmeId/Id/PrvtId/Othr/Id', maxLength: 35 },
+      { path: 'PmtInf/CdtrSchmeId/Id/PrvtId/Othr/SchmeNm/Prtry', pattern: /^SEPA$/ },
+    ],
+  },
+  'pain.008+SEPA_B2B': {
+    baseSchema: 'pain.008',
+    name: 'SEPA B2B Direct Debit',
+    description: 'EPC SEPA Business-to-Business Direct Debit scheme rules',
+    additionalMandatory: [
+      'PmtInf/PmtTpInf/SvcLvl/Cd',
+      'PmtInf/PmtTpInf/LclInstrm/Cd',
+      'PmtInf/PmtTpInf/SeqTp',
+      'PmtInf/CdtrSchmeId/Id/PrvtId/Othr/Id',
+      'PmtInf/CdtrSchmeId/Id/PrvtId/Othr/SchmeNm/Prtry',
+    ],
+    restrictedCodes: {
+      'PmtInf/PmtTpInf/SvcLvl/Cd': ['SEPA'],
+      'PmtInf/PmtTpInf/LclInstrm/Cd': ['B2B'],
+      'PmtInf/PmtTpInf/SeqTp': ['FRST', 'RCUR', 'OOFF', 'FNAL'],
+    },
+    additionalFormatRules: [
+      { path: 'PmtInf/CdtrSchmeId/Id/PrvtId/Othr/Id', maxLength: 35 },
+      { path: 'PmtInf/CdtrSchmeId/Id/PrvtId/Othr/SchmeNm/Prtry', pattern: /^SEPA$/ },
+    ],
+  },
+  'pacs.008+SEPA_SCT': {
+    baseSchema: 'pacs.008',
+    name: 'SEPA Credit Transfer',
+    description: 'EPC SEPA Credit Transfer scheme rules',
+    additionalMandatory: [
+      'CdtTrfTxInf/PmtTpInf/SvcLvl/Cd',
+    ],
+    restrictedCodes: {
+      'CdtTrfTxInf/PmtTpInf/SvcLvl/Cd': ['SEPA'],
+      'CdtTrfTxInf/ChrgBr': ['SLEV'],
+    },
+    additionalFormatRules: [],
+  },
+};
+
 // ─── DOM REFS ───
 var textarea = document.getElementById('xml-input');
 var codeBlock = document.getElementById('xml-code');
@@ -381,6 +440,33 @@ var fileUpload = document.getElementById('file-upload');
 var messageTypeSelect = document.getElementById('message-type-select');
 var resultsContent = document.getElementById('results-content');
 var emptyState = document.getElementById('empty-state');
+var profileSelect = document.getElementById('profile-select');
+
+// ─── PROFILE DROPDOWN FILTERING ───
+function filterProfileOptions(detectedBase) {
+  if (!profileSelect) return;
+  var options = profileSelect.options;
+  var currentValue = profileSelect.value;
+  var hasValidSelection = false;
+  for (var i = 0; i < options.length; i++) {
+    var opt = options[i];
+    if (opt.value === 'none') { opt.hidden = false; continue; }
+    var base = opt.getAttribute('data-base');
+    var show = !detectedBase || base === detectedBase;
+    opt.hidden = !show;
+    if (show && opt.value === currentValue) hasValidSelection = true;
+  }
+  if (!hasValidSelection) profileSelect.value = 'none';
+}
+
+function detectBaseFromXML(xmlString) {
+  if (!xmlString || !xmlString.trim()) return null;
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(xmlString, 'application/xml');
+  if (doc.querySelector('parsererror')) return null;
+  var detected = detectMessageType(doc);
+  return detected || null;
+}
 
 // ─── HIGHLIGHTING ───
 function updateHighlighting(xmlText) {
@@ -436,6 +522,7 @@ for (var i = 0; i < sampleLinks.length; i++) {
       textarea.value = xml;
       updateHighlighting(xml);
       messageTypeSelect.value = type;
+      filterProfileOptions(type);
       showToast('Sample loaded: ' + type);
     }
     // Close the dropdown
@@ -726,6 +813,49 @@ function validate(xmlString, forceSchema) {
     }
   }
 
+  // ─── PROFILE OVERLAY ───
+  var activeProfile = profileSelect ? profileSelect.value : 'none';
+  if (activeProfile && activeProfile !== 'none' && profileRegistry[activeProfile]) {
+    var profile = profileRegistry[activeProfile];
+    result.profile = profile.name;
+
+    // Additional mandatory checks
+    for (var pi = 0; pi < profile.additionalMandatory.length; pi++) {
+      var pPath = profile.additionalMandatory[pi];
+      var pEl = resolveXMLPath(businessRoot, pPath);
+      if (!pEl || !pEl.textContent.trim()) {
+        result.errors.push({ type: 'mandatory', field: pPath, message: 'Missing mandatory field (scheme rule): ' + pPath, source: 'profile', profileName: profile.name });
+      }
+    }
+
+    // Restricted code checks
+    var rcKeys = Object.keys(profile.restrictedCodes);
+    for (var ri = 0; ri < rcKeys.length; ri++) {
+      var rcPath = rcKeys[ri];
+      var rcAllowed = profile.restrictedCodes[rcPath];
+      var rcEl = resolveXMLPath(businessRoot, rcPath);
+      if (rcEl && rcEl.textContent.trim() && rcAllowed.indexOf(rcEl.textContent.trim()) === -1) {
+        result.errors.push({ type: 'code', field: rcPath, message: "Invalid code '" + rcEl.textContent.trim() + "' for " + profile.name + ". Allowed: " + rcAllowed.join(', '), source: 'profile', profileName: profile.name });
+      }
+    }
+
+    // Additional format rules
+    for (var fi = 0; fi < profile.additionalFormatRules.length; fi++) {
+      var fRule = profile.additionalFormatRules[fi];
+      var fEl = resolveXMLPath(businessRoot, fRule.path);
+      if (!fEl || !fEl.textContent.trim()) continue;
+      var fValue = fEl.textContent.trim();
+      if (fRule.maxLength && fValue.length > fRule.maxLength) {
+        result.errors.push({ type: 'format', field: fRule.path, message: fRule.path + ' exceeds max length ' + fRule.maxLength + ' (' + profile.name + ' rule)', source: 'profile', profileName: profile.name });
+      }
+      if (fRule.pattern && !fRule.pattern.test(fValue)) {
+        result.errors.push({ type: 'format', field: fRule.path, message: fRule.path + ' does not match expected pattern (' + profile.name + ' rule)', source: 'profile', profileName: profile.name });
+      }
+    }
+  } else {
+    result.profile = null;
+  }
+
   result.valid = result.errors.length === 0;
   return result;
 }
@@ -794,6 +924,7 @@ function renderResults(result, xmlString) {
     : errCount + ' error' + (errCount !== 1 ? 's' : '') + ' found' +
       (result.messageType ? ' in <span class="msg-type-badge">' + result.messageType + '</span>' : '');
   if (warnCount > 0) validMsg += ', ' + warnCount + ' warning' + (warnCount !== 1 ? 's' : '');
+  if (result.profile) validMsg += ' <span class="profile-badge">' + esc(result.profile) + '</span>';
   summary.innerHTML =
     '<span uk-icon="icon: ' + (result.valid ? 'check' : 'close') + '; ratio: 1.1"></span>' +
     '<span>' + validMsg + '</span>';
@@ -803,20 +934,45 @@ function renderResults(result, xmlString) {
   innerWrap.className = 'results-body-inner';
 
   if (errCount > 0) {
-    var section = document.createElement('div');
-    section.innerHTML = '<div class="section-header">Errors <span class="section-count">' + errCount + '</span></div>';
-    result.errors.forEach(function(err) {
-      var item = document.createElement('div');
-      item.className = 'error-item type-error';
-      item.innerHTML =
-        '<span class="ei-icon" uk-icon="icon: close; ratio: 0.7"></span>' +
-        '<div><span>' + esc(err.message) + '</span>' +
-        (err.field ? '<span class="field-path">' + esc(err.field) + '</span>' : '') +
-        '</div>';
-      if (err.field) item.addEventListener('click', function() { scrollToField(xmlString, err.field); });
-      section.appendChild(item);
-    });
-    innerWrap.appendChild(section);
+    // Split errors into layer 1 (base) and layer 2 (profile)
+    var baseErrors = result.errors.filter(function(e) { return !e.source; });
+    var profileErrors = result.errors.filter(function(e) { return e.source === 'profile'; });
+
+    if (baseErrors.length > 0) {
+      var section = document.createElement('div');
+      section.innerHTML = '<div class="section-header"><span class="layer-label layer-1">Layer 1</span> Base Schema <span class="section-count">' + baseErrors.length + '</span></div>';
+      baseErrors.forEach(function(err) {
+        var item = document.createElement('div');
+        item.className = 'error-item type-error';
+        item.innerHTML =
+          '<span class="ei-icon" uk-icon="icon: close; ratio: 0.7"></span>' +
+          '<div><span>' + esc(err.message) + '</span>' +
+          (err.field ? '<span class="field-path">' + esc(err.field) + '</span>' : '') +
+          '</div>';
+        if (err.field) item.addEventListener('click', function() { scrollToField(xmlString, err.field); });
+        section.appendChild(item);
+      });
+      innerWrap.appendChild(section);
+    }
+
+    if (profileErrors.length > 0) {
+      var section = document.createElement('div');
+      var profileLabel = profileErrors[0].profileName || 'Scheme';
+      section.innerHTML = '<div class="section-header"><span class="layer-label layer-2">Layer 2</span> Scheme Rules <span class="section-count">' + profileErrors.length + '</span></div>';
+      profileErrors.forEach(function(err) {
+        var item = document.createElement('div');
+        item.className = 'error-item type-error';
+        item.innerHTML =
+          '<span class="ei-icon" uk-icon="icon: close; ratio: 0.7"></span>' +
+          '<div><span>' + esc(err.message) + '</span>' +
+          '<span class="profile-error-badge">' + esc(err.profileName) + '</span>' +
+          (err.field ? '<span class="field-path">' + esc(err.field) + '</span>' : '') +
+          '</div>';
+        if (err.field) item.addEventListener('click', function() { scrollToField(xmlString, err.field); });
+        section.appendChild(item);
+      });
+      innerWrap.appendChild(section);
+    }
   }
 
   if (warnCount > 0) {
@@ -914,6 +1070,9 @@ validateBtn.addEventListener('click', function() {
   var xmlString = textarea.value.trim();
   if (!xmlString) { resultsContent.innerHTML = ''; resultsContent.appendChild(emptyState); return; }
   var forceType = messageTypeSelect.value;
+  // Filter profile dropdown based on detected/forced message type
+  var baseType = forceType !== 'auto' ? forceType : detectBaseFromXML(xmlString);
+  filterProfileOptions(baseType);
   renderResults(validate(xmlString, forceType === 'auto' ? null : forceType), xmlString);
 });
 
@@ -964,6 +1123,10 @@ function lcsLines(a, b) {
 }
 
 function showDiff(userXml) {
+  // Close the Actions dropdown before opening the modal
+  var actionsDropdown = document.querySelector('.actions-dropdown');
+  if (actionsDropdown) UIkit.dropdown(actionsDropdown).hide(false);
+
   var type = messageTypeSelect.value === 'auto'
     ? (lastResult && lastResult.messageType ? (function() { var keys = Object.keys(schemaRegistry); for (var i = 0; i < keys.length; i++) if (schemaRegistry[keys[i]].messageType === lastResult.messageType) return keys[i]; return null; })() : null)
     : messageTypeSelect.value;

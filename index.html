@@ -56,36 +56,44 @@
       <div class="panel-left">
         <div class="panel-left-toolbar">
           <span class="panel-left-title">XML Input</span>
-          <div class="toolbar-buttons">
-            <label class="toolbar-btn" style="margin:0">
-              <img src="assets/upload.svg" alt=""> Upload File
-              <input type="file" id="file-upload" accept=".xml,.txt" hidden>
-            </label>
-            <div class="uk-inline">
-              <button class="toolbar-btn" type="button" id="load-sample-btn">
-                <img src="assets/load.svg" alt=""> Load Sample
-              </button>
-              <div uk-dropdown="mode: click; pos: bottom-right" class="sample-dropdown">
-                <ul class="uk-nav uk-dropdown-nav">
-                  <li class="uk-nav-header">Core Messages</li>
-                  <li><a href="#" data-sample="pacs.008">pacs.008 &mdash; FI to FI Credit Transfer</a></li>
-                  <li><a href="#" data-sample="pain.001">pain.001 &mdash; Customer Credit Transfer</a></li>
-                  <li><a href="#" data-sample="pain.002">pain.002 &mdash; Customer Payment Status Report</a></li>
-                  <li><a href="#" data-sample="pacs.002">pacs.002 &mdash; FI to FI Payment Status Report</a></li>
-                  <li><a href="#" data-sample="camt.053">camt.053 &mdash; Bank to Customer Statement</a></li>
-                  <li><a href="#" data-sample="camt.052">camt.052 &mdash; Intraday Account Report</a></li>
-                  <li class="uk-nav-divider"></li>
-                  <li class="uk-nav-header">Direct Debit</li>
-                  <li><a href="#" data-sample="pain.008">pain.008 &mdash; Customer Direct Debit</a></li>
-                  <li><a href="#" data-sample="pacs.010">pacs.010 &mdash; FI to FI Direct Debit</a></li>
-                  <li class="uk-nav-divider"></li>
-                  <li class="uk-nav-header">Extended Messages</li>
-                  <li><a href="#" data-sample="camt.054">camt.054 &mdash; Debit/Credit Notification</a></li>
-                  <li><a href="#" data-sample="pacs.004">pacs.004 &mdash; Payment Return</a></li>
-                  <li><a href="#" data-sample="pacs.009">pacs.009 &mdash; FI to FI Institution Transfer</a></li>
-                </ul>
+          <div class="toolbar-right">
+            <div class="toolbar-buttons">
+              <label class="toolbar-btn" style="margin:0">
+                <img src="assets/upload.svg" alt=""> Upload File
+                <input type="file" id="file-upload" accept=".xml,.txt" hidden>
+              </label>
+              <div class="uk-inline">
+                <button class="toolbar-btn" type="button" id="load-sample-btn">
+                  <img src="assets/load.svg" alt=""> Load Sample
+                </button>
+                <div uk-dropdown="mode: click; pos: bottom-right" class="sample-dropdown">
+                  <ul class="uk-nav uk-dropdown-nav">
+                    <li class="uk-nav-header">Core Messages</li>
+                    <li><a href="#" data-sample="pacs.008">pacs.008: FI to FI Credit Transfer</a></li>
+                    <li><a href="#" data-sample="pain.001">pain.001: Customer Credit Transfer</a></li>
+                    <li><a href="#" data-sample="pain.002">pain.002: Customer Payment Status Report</a></li>
+                    <li><a href="#" data-sample="pacs.002">pacs.002: FI to FI Payment Status Report</a></li>
+                    <li><a href="#" data-sample="camt.053">camt.053: Bank to Customer Statement</a></li>
+                    <li><a href="#" data-sample="camt.052">camt.052: Intraday Account Report</a></li>
+                    <li class="uk-nav-divider"></li>
+                    <li class="uk-nav-header">Direct Debit</li>
+                    <li><a href="#" data-sample="pain.008">pain.008: Customer Direct Debit</a></li>
+                    <li><a href="#" data-sample="pacs.010">pacs.010: FI to FI Direct Debit</a></li>
+                    <li class="uk-nav-divider"></li>
+                    <li class="uk-nav-header">Extended Messages</li>
+                    <li><a href="#" data-sample="camt.054">camt.054: Debit/Credit Notification</a></li>
+                    <li><a href="#" data-sample="pacs.004">pacs.004: Payment Return</a></li>
+                    <li><a href="#" data-sample="pacs.009">pacs.009: FI to FI Institution Transfer</a></li>
+                  </ul>
+                </div>
               </div>
             </div>
+            <select id="profile-select" class="profile-select">
+              <option value="none">No profile (base ISO only)</option>
+              <option value="pain.008+SEPA_CORE" data-base="pain.008">SEPA Core Direct Debit</option>
+              <option value="pain.008+SEPA_B2B" data-base="pain.008">SEPA B2B Direct Debit</option>
+              <option value="pacs.008+SEPA_SCT" data-base="pacs.008">SEPA Credit Transfer</option>
+            </select>
           </div>
         </div>
         <div class="editor-area">

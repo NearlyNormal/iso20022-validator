@@ -139,11 +139,10 @@ body {
 
 .panel-left-toolbar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   padding: 16px 20px;
   flex-shrink: 0;
-  min-height: 60px;
 }
 
 .panel-left-title {
@@ -153,6 +152,12 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--text-primary);
+}
+
+.toolbar-right {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .toolbar-buttons {
@@ -175,18 +180,47 @@ body {
   letter-spacing: 0.8px;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: background 0.3s ease, border-color 0.3s ease;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .toolbar-btn:hover {
   background: #E8E8E8;
   border-color: #CCC;
+  color: #000;
 }
 
 .toolbar-btn img {
   width: 18px;
   height: 18px;
   opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+.toolbar-btn:hover img {
+  opacity: 1;
+}
+
+/* ─── PROFILE SELECT ─── */
+.profile-select {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 16px;
+  height: 36px;
+  font-family: var(--font-mono);
+  font-size: var(--size-sm);
+  font-weight: 500;
+  letter-spacing: 0.8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+.profile-select:hover {
+  background: #E8E8E8;
+  border-color: #CCC;
+  color: #000;
 }
 
 /* ─── SAMPLE DROPDOWN ─── */
@@ -464,6 +498,48 @@ body {
   background: var(--bg-input);
   color: var(--text-secondary);
   font-weight: 600;
+}
+
+/* ─── LAYER LABELS ─── */
+.layer-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+.layer-1 {
+  background: #E8F0FE;
+  color: #1967D2;
+}
+.layer-2 {
+  background: #FFF3E0;
+  color: #E65100;
+}
+.profile-badge {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: #FFF3E0;
+  color: #E65100;
+  margin-left: 8px;
+  text-transform: uppercase;
+}
+.profile-error-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: #FFF3E0;
+  color: #E65100;
+  margin-left: 6px;
+  vertical-align: middle;
 }
 
 /* ─── ERROR LIST ─── */

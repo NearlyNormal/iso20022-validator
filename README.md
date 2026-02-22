@@ -54,6 +54,37 @@ The 11 message types we support are a solid starting set but only scratch the su
 
 In practice, the 11 we have cover the **most commonly validated payment flows** — which is what banks and fintechs typically need for testing. The tool is designed to be extensible (adding a new type is just a schema object + sample XML), so you could add more over time if needed.
 
+## What matters in practice
+
+A "valid" ISO 20022 message can still be rejected. There are three layers of validation between your XML and a successful payment, and most real-world rejections happen at layers 2 and 3 — not layer 1. Understanding this hierarchy is essential for anyone building or debugging payment integrations.
+
+### Layer 1: Base message definition
+
+This is structural validity — does the XML conform to the ISO 20022 message definition? Mandatory fields present, code values from the right lists, IBANs and BICs correctly formatted, amounts with the right decimal precision. **This is what this tool validates.** Passing layer 1 means the message is well-formed and structurally correct, but it does not guarantee acceptance by any specific payment scheme or bank.
+
+### Layer 2: Scheme and market practice rules
+
+This is where "optional" becomes "mandatory." Payment schemes layer additional rules on top of the base ISO definition, and these rules vary by scheme:
+
+- **SEPA CORE vs SEPA B2B** — both use `pain.008` for direct debits, but they have different acceptance rules, mandate handling requirements, and settlement timelines. A message valid for CORE may be rejected under B2B rules and vice versa.
+- **UK BACS, Canadian PAD** — different identifier requirements and mandate conventions. A SEPA-valid direct debit is meaningless in these schemes.
+- **Mandate lifecycle sequencing** — `FRST` (first), `RCUR` (recurring), `OOFF` (one-off), `FNAL` (final) are not just valid code values — they must follow correct sequencing. Sending `FRST` twice for the same mandate triggers rejection. This is behavioural, not just structural.
+- **Creditor Scheme Identification** — mandatory in SEPA direct debit, optional in base ISO. Country-specific formatting (e.g., `DE98ZZZ09999999999` for Germany). Missing or malformed Creditor ID is one of the most common SEPA rejection reasons.
+- **Remittance information** — some schemes mandate structured remittance (`Strd`), others accept unstructured (`Ustrd`) with bank-specific length limits. Getting this wrong means the payment goes through but the beneficiary can't reconcile it.
+
+### Layer 3: Bank implementation guides
+
+Individual banks impose "house rules" on top of scheme requirements — and these are the most frustrating source of rejections because they're often undocumented or buried in PDF implementation guides:
+
+- **Version pinning** — your bank expects `pain.001.001.03` but you're sending `.09`. Both are valid ISO 20022, but the bank's gateway rejects the newer version.
+- **Element rejection** — banks reject optional elements they haven't implemented. Your message includes `<RgltryRptg>` because the schema allows it, but the bank's parser chokes on it.
+- **Proprietary code lists** — some banks extend or restrict code lists with proprietary values not in the ISO standard.
+- **Channel-specific requirements** — SWIFT FIN wrappers, app headers, or batch envelope structures that differ depending on whether you're submitting via file upload, API, or SWIFT network.
+
+### Where this tool fits
+
+This tool validates **layer 1** thoroughly — base message structure, mandatory fields, code lists, IBAN/BIC checksums, format rules. It also supports **layer 2** through profile overlays: you can select a scheme profile (e.g., SEPA Core Direct Debit) and the validator will check scheme-specific mandatory fields, restricted code values, and additional format rules on top of the base schema. Layer 3 is inherently bank-specific and not something a generic tool can cover — but layers 1 and 2 together catch the majority of codifiable errors.
+
 ## What gets validated
 
 - **Mandatory fields** &mdash; checks all required elements exist and are non-empty
@@ -96,6 +127,14 @@ iso20022-validator/
 1. Add a schema entry to `schemaRegistry` in `assets/app.js` with `messageType`, `rootElement`, `namespace`, `mandatoryPaths`, `codeValues`, `formatRules`, and `extractionMap`
 2. Add a sample XML string to `sampleXMLData` in the same file
 3. Add a dropdown `<li>` in `index.html` and the mapping to `sampleFileMap`
+
+### Adding a scheme profile
+
+Profiles overlay the base schema — they add constraints, never remove them.
+
+1. Add a profile entry to `profileRegistry` in `assets/app.js` with a key in the format `baseType+PROFILE_NAME` (e.g., `pain.008+SEPA_CORE`)
+2. Define `baseSchema` (which schema key this profile applies to), `name`, `description`, `additionalMandatory` (paths that become mandatory under this scheme), `restrictedCodes` (narrower code lists), and `additionalFormatRules`
+3. Add a corresponding `<option>` to the `#profile-select` dropdown in `index.html` with a `data-base` attribute matching the base schema key
 
 ## Tech stack
 
