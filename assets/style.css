@@ -32,6 +32,7 @@ html,
 body {
   font-family: var(--font-sans);
   font-size: 1.1rem;
+  line-height: 1.35;
   color: var(--text-primary);
   background: var(--bg-panel);
   height: 100%;
@@ -255,6 +256,11 @@ body {
 /* ─── SAMPLE DROPDOWN ─── */
 .sample-dropdown {
   min-width: 320px;
+  max-height: 70vh;
+  overflow-y: auto;
+  margin-top: 0 !important;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 .sample-dropdown .uk-nav>li>a {
@@ -262,6 +268,7 @@ body {
   font-size: var(--size-md);
   color: var(--text-primary);
   padding: 8px 16px;
+  white-space: nowrap;
 }
 
 .sample-dropdown .uk-nav>li>a:hover {
@@ -276,6 +283,7 @@ body {
   letter-spacing: 1px;
   color: var(--text-muted);
   padding: 8px 16px 4px;
+  white-space: nowrap;
 }
 
 /* ─── EDITOR AREA ─── */
@@ -428,9 +436,9 @@ body {
 
 .empty-state-text {
   font-family: var(--font-mono);
-  font-size: var(--size-base);
+  font-size: var(--size-code);
   font-weight: 400;
-  line-height: 1.8;
+  line-height: 1.35;
   color: var(--text-muted);
 }
 
@@ -468,7 +476,7 @@ body {
 
 .unsupported-info {
   padding: 8px 0;
-  line-height: 1.7;
+  line-height: 1.35;
   color: var(--text-secondary);
 }
 
@@ -580,7 +588,7 @@ body {
   margin-bottom: 4px;
   border-radius: 6px;
   font-size: var(--size-md);
-  line-height: 1.5;
+  line-height: 1.65;
   cursor: pointer;
   transition: background 150ms ease;
 }
@@ -627,6 +635,7 @@ body {
   padding: 8px 12px;
   border-radius: 4px;
   font-size: var(--size-md);
+  line-height: 1.65;
   transition: background 150ms ease;
 }
 
@@ -808,7 +817,7 @@ body {
   overflow: auto;
   font-family: var(--font-mono);
   font-size: var(--size-md);
-  line-height: 1.8;
+  line-height: 1.65;
 }
 
 .diff-panel-left {
@@ -819,7 +828,7 @@ body {
   display: flex;
   align-items: baseline;
   padding: 0 10px;
-  min-height: 1.8em;
+  min-height: 1.65em;
 }
 
 .diff-line:nth-child(odd) {
@@ -914,7 +923,7 @@ body {
   overflow-y: auto;
   font-family: var(--font-sans);
   font-size: var(--size-md);
-  line-height: 1.7;
+  line-height: 1.35;
   color: var(--text-primary);
 }
 
