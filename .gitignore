@@ -3,4 +3,6 @@
 node_modules/
 *.log
 .env
+__plan.md
+/tests/
 

@@ -1,14 +1,18 @@
 # ISO 20022 XML Payment Validator
 
-Browser-based ISO 20022 XML validator. No server, no dependencies. Paste or upload XML, get instant structured feedback.
+## The problem
 
-## Who this is for
+Banks and financial institutions worldwide are migrating to ISO 20022, a new standard for how payment messages are structured. Every wire transfer, direct debit, and bank statement will eventually use this format. The messages are XML files with strict rules about what fields are required, what values are allowed, and how data should be formatted.
 
-Payments engineers, fintech developers, and bank integration teams testing ISO 20022 message construction before hitting a live endpoint.
+Getting these messages wrong means failed payments, rejected transactions, and delays that cost real money. Today, the tools available to check these messages before sending them are either expensive enterprise software or require setting up complex development environments. A payments engineer at a small bank or fintech startup faces the same XML formatting requirements as JPMorgan, but without the same tooling budget.
 
-## Why it exists
+## What this tool does
 
-Most validators are either paywalled enterprise tools or require running a Java/Spring stack locally. This runs in your browser tab.
+This is a free, browser-based validator. Open the HTML file, paste your XML payment message, and get instant feedback: which fields are missing, which codes are invalid, whether your IBANs and BICs are correctly formatted. No software to install, no server to run, no account to create.
+
+It helps teams at banks of any size, payment processors, and fintech companies catch formatting errors before messages reach production systems, whether you're building a new integration, debugging a failed payment, or training staff on the ISO 20022 format.
+
+---
 
 ## Supported Message Types
 
@@ -34,24 +38,20 @@ Most validators are either paywalled enterprise tools or require running a Java/
 
 ## Usage
 
-Serve with any static HTTP server:
+Just open `index.html` in your browser. That's it. No server required.
 
-```bash
-cd iso20022-validator
-python3 -m http.server 8000
-```
+## Technical note
 
-Then open `http://localhost:8000` in your browser.
+Everything is contained in a single HTML file. All validation schemas, sample XML messages, and application logic are inlined directly into `index.html`. An earlier version used ES6 `import`/`export` modules with separate schema files, but browsers block module imports over the `file://` protocol due to CORS restrictions. Inlining everything removes the need for a local HTTP server and makes the tool truly portable: download one file and open it.
 
-> **Note:** ES6 modules require a local server. Opening `index.html` directly via `file://` will not work due to browser CORS restrictions.
+The separate schema files in `schemas/` and sample files in `samples/` are kept for reference but are not loaded at runtime.
 
 ## Adding a new message type
 
-1. Create `schemas/yourtype.js` following the pattern in existing schema files
-2. Export a rules object with `messageType`, `rootElement`, `namespace`, `mandatoryPaths`, `codeValues`, `formatRules`, and `extractionMap`
-3. Add a sample XML file to `samples/`
-4. Import the schema in `index.html` and add it to `schemaRegistry`
-5. Add an `<option>` to the message type dropdown
+1. Add a new entry to the `schemaRegistry` object in `index.html` with `messageType`, `rootElement`, `namespace`, `mandatoryPaths`, `codeValues`, `formatRules`, and `extractionMap`
+2. Add a sample XML string to the `sampleXMLData` object
+3. Add an `<option>` to the message type dropdown
+4. Add the mapping to `sampleFileMap`
 
 ## Tech Stack
 
@@ -60,10 +60,10 @@ Then open `http://localhost:8000` in your browser.
 | UI Framework | [UIKit 3](https://getuikit.com) |
 | Fonts | IBM Plex Sans + IBM Plex Mono |
 | XML Parsing | Browser-native DOMParser |
-| Schema Validation | Custom JS rule engine (ES6 modules) |
+| Schema Validation | Custom JS rule engine |
 | Syntax Highlighting | highlight.js (CDN) |
 
-No Node.js. No npm. No build step.
+No Node.js. No npm. No build step. No server.
 
 ## License
 
