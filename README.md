@@ -12,6 +12,10 @@ The standard organises messages into families by function:
 
 Getting these messages wrong means failed payments, rejected transactions, and delays that cost real money. Today, the tools available to check these messages before sending them are either expensive enterprise software or require setting up complex development environments. A payments engineer at a small bank or fintech startup faces the same XML formatting requirements as JPMorgan, but without the same tooling budget.
 
+## In plain terms
+
+ISO 20022 is the global standard for how banks talk to each other when moving money. Every wire transfer, direct debit, and statement is an XML file that has to follow strict formatting rules. This tool lets you paste one of those XML files into your browser and instantly tells you if anything is wrong with it, before you send it anywhere.
+
 ## What this tool does
 
 A valid ISO 20022 message can still be rejected. There are three layers between your XML and a successful payment: **Layer 1** (base ISO message structure), **Layer 2** (scheme and market practice rules like SEPA, CHAPS, Fedwire), and **Layer 3** (bank-specific implementation guides). Most real-world rejections happen at layers 2 and 3. This tool covers **Layer 1 and Layer 2**.
