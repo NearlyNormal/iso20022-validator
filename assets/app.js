@@ -941,21 +941,25 @@ function copyReport() {
 
 // ─── DIFF VIEW ───
 function lcsLines(a, b) {
-  var m = a.length, n = b.length;
+  // Normalize: trim whitespace for comparison, skip blank lines
+  var aNorm = [], bNorm = [], aIdx = [], bIdx = [];
+  for (var i = 0; i < a.length; i++) { var t = a[i].trim(); if (t) { aNorm.push(t); aIdx.push(i); } }
+  for (var i = 0; i < b.length; i++) { var t = b[i].trim(); if (t) { bNorm.push(t); bIdx.push(i); } }
+  var m = aNorm.length, n = bNorm.length;
   var dp = [];
   for (var i = 0; i <= m; i++) { dp[i] = []; for (var j = 0; j <= n; j++) dp[i][j] = 0; }
   for (var i = 1; i <= m; i++)
     for (var j = 1; j <= n; j++)
-      dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
+      dp[i][j] = aNorm[i-1] === bNorm[j-1] ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
   var res = [];
   var i = m, j = n;
   while (i > 0 && j > 0) {
-    if (a[i-1] === b[j-1]) { res.unshift({ type: 'same', text: a[--i] }); j--; }
-    else if (dp[i-1][j] >= dp[i][j-1]) res.unshift({ type: 'removed', text: a[--i] });
-    else res.unshift({ type: 'added', text: b[--j] });
+    if (aNorm[i-1] === bNorm[j-1]) { res.unshift({ type: 'same', textL: a[aIdx[i-1]], textR: b[bIdx[j-1]] }); i--; j--; }
+    else if (dp[i-1][j] >= dp[i][j-1]) { res.unshift({ type: 'removed', textL: a[aIdx[--i]] }); }
+    else { res.unshift({ type: 'added', textR: b[bIdx[--j]] }); }
   }
-  while (i > 0) res.unshift({ type: 'removed', text: a[--i] });
-  while (j > 0) res.unshift({ type: 'added', text: b[--j] });
+  while (i > 0) res.unshift({ type: 'removed', textL: a[aIdx[--i]] });
+  while (j > 0) res.unshift({ type: 'added', textR: b[bIdx[--j]] });
   return res;
 }
 
@@ -969,26 +973,61 @@ function showDiff(userXml) {
   var sampleXml = sampleXMLData[filename];
   if (!sampleXml) { showToast('Sample not available', true); return; }
 
-  var diff = lcsLines(userXml.split('\n'), sampleXml.split('\n'));
+  var raw = lcsLines(userXml.split('\n'), sampleXml.split('\n'));
+
+  // Post-process: pair up consecutive removed/added blocks as "modified" lines
+  var diff = [];
+  var i = 0;
+  while (i < raw.length) {
+    if (raw[i].type === 'same') { diff.push(raw[i]); i++; continue; }
+    // Collect consecutive change block (any mix of removed/added)
+    var removed = [], added = [];
+    while (i < raw.length && raw[i].type !== 'same') {
+      if (raw[i].type === 'removed') removed.push(raw[i]);
+      else added.push(raw[i]);
+      i++;
+    }
+    var pairs = Math.min(removed.length, added.length);
+    for (var p = 0; p < pairs; p++) {
+      diff.push({ type: 'modified', textL: removed[p].textL, textR: added[p].textR });
+    }
+    for (var p = pairs; p < removed.length; p++) diff.push(removed[p]);
+    for (var p = pairs; p < added.length; p++) diff.push(added[p]);
+  }
+
+  // Highlight text content between XML tags
+  function highlightContent(line) {
+    var escaped = esc(line);
+    // Match: (leading whitespace + tags)(text content)(closing tag+rest)
+    // Pattern works on the escaped HTML where < is &lt; and > is &gt;
+    return escaped.replace(
+      /(&lt;[^&]*&gt;)([^&]+)(&lt;\/[^&]*&gt;)/g,
+      '$1<span class="diff-value">$2</span>$3'
+    );
+  }
+
   var leftPanel = document.getElementById('diff-left');
   var rightPanel = document.getElementById('diff-right');
   var lh = '', rh = '';
   var leftNum = 0, rightNum = 0;
   for (var i = 0; i < diff.length; i++) {
     var d = diff[i];
-    var e = esc(d.text || '');
     if (d.type === 'same') {
       leftNum++; rightNum++;
-      lh += '<div class="diff-line diff-same"><span class="diff-line-num">' + leftNum + '</span><span class="diff-line-text">' + e + '</span></div>';
-      rh += '<div class="diff-line diff-same"><span class="diff-line-num">' + rightNum + '</span><span class="diff-line-text">' + e + '</span></div>';
+      lh += '<div class="diff-line diff-same"><span class="diff-line-num">' + leftNum + '</span><span class="diff-line-text">' + esc(d.textL || '') + '</span></div>';
+      rh += '<div class="diff-line diff-same"><span class="diff-line-num">' + rightNum + '</span><span class="diff-line-text">' + esc(d.textR || '') + '</span></div>';
+    } else if (d.type === 'modified') {
+      leftNum++; rightNum++;
+      lh += '<div class="diff-line diff-modified"><span class="diff-line-num">' + leftNum + '</span><span class="diff-line-text">' + highlightContent(d.textL || '') + '</span></div>';
+      rh += '<div class="diff-line diff-modified"><span class="diff-line-num">' + rightNum + '</span><span class="diff-line-text">' + highlightContent(d.textR || '') + '</span></div>';
     } else if (d.type === 'removed') {
       leftNum++;
-      lh += '<div class="diff-line diff-removed"><span class="diff-line-num">' + leftNum + '</span><span class="diff-line-text">' + e + '</span></div>';
+      lh += '<div class="diff-line diff-removed"><span class="diff-line-num">' + leftNum + '</span><span class="diff-line-text">' + esc(d.textL || '') + '</span></div>';
       rh += '<div class="diff-line"><span class="diff-line-num"></span><span class="diff-line-text"></span></div>';
     } else {
       rightNum++;
       lh += '<div class="diff-line"><span class="diff-line-num"></span><span class="diff-line-text"></span></div>';
-      rh += '<div class="diff-line diff-added"><span class="diff-line-num">' + rightNum + '</span><span class="diff-line-text">' + e + '</span></div>';
+      rh += '<div class="diff-line diff-added"><span class="diff-line-num">' + rightNum + '</span><span class="diff-line-text">' + esc(d.textR || '') + '</span></div>';
     }
   }
   leftPanel.innerHTML = lh;

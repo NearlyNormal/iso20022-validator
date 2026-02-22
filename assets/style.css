@@ -752,6 +752,15 @@ body {
   color: var(--success);
 }
 
+.diff-line.diff-modified {
+  background: #F0F7FF !important;
+}
+
+.diff-value {
+  color: #2563EB;
+  font-weight: 500;
+}
+
 .diff-line.diff-same {
   color: var(--text-primary);
 }
