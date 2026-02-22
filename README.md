@@ -150,21 +150,21 @@ The table below shows which Layer 2 profiles are currently implemented and which
 
 | Profile | Base message | Description |
 |---------|-------------|-------------|
-| | | **Europe: SEPA** |
+| **Europe: SEPA** | | |
 | SEPA Core Direct Debit | pain.008 | EPC Core Direct Debit rulebook |
 | SEPA B2B Direct Debit | pain.008 | EPC Business-to-Business Direct Debit rulebook |
 | SEPA Credit Transfer | pacs.008 | EPC Credit Transfer rulebook |
 | SEPA Instant Credit Transfer | pacs.008 | EPC SCT Inst rulebook |
-| | | **Cross-border** |
+| **Cross-border** | | |
 | SWIFT CBPR+ | pacs.008 | SWIFT Cross-Border Payments and Reporting Plus |
-| | | **United Kingdom** |
+| **United Kingdom** | | |
 | UK CHAPS | pacs.008 | Bank of England CHAPS ISO 20022 implementation |
-| | | **United States** |
+| **United States** | | |
 | US Fedwire | pacs.008 | Federal Reserve Fedwire Funds Service |
 | US TCH RTP | pacs.008 | The Clearing House Real-Time Payments |
-| | | **Canada** |
+| **Canada** | | |
 | Canadian PAD | pain.008 | Payments Canada Pre-Authorized Debit (Rule H1) |
-| | | **Latin America** |
+| **Latin America** | | |
 | Brazil SPI/Pix | pacs.008 | Central Bank of Brazil SPI instant payment scheme |
 | Mexico SPEI | pacs.008 | Banco de Mexico SPEI ISO 20022 usage rules |
 
