@@ -40,6 +40,9 @@
     <div class="uk-navbar-left uk-margin-left">
       <span class="app-title"><span class="accent">&gt;</span> ISO 20022 Validator</span>
       <span class="version-badge">v1.2</span>
+      <button class="glossary-btn" id="glossary-btn" type="button" title="About this validator">
+        <img src="assets/info.svg" alt="About">
+      </button>
     </div>
     <div class="uk-navbar-right uk-margin-right">
       <button class="validate-btn" id="validate-btn">
@@ -62,6 +65,7 @@
                 <img src="assets/upload.svg" alt=""> Upload File
                 <input type="file" id="file-upload" accept=".xml,.txt" hidden>
               </label>
+              <span class="toolbar-or">or</span>
               <div class="uk-inline">
                 <button class="toolbar-btn" type="button" id="load-sample-btn">
                   <img src="assets/load.svg" alt=""> Load Sample
@@ -90,9 +94,38 @@
             </div>
             <select id="profile-select" class="profile-select">
               <option value="none">No profile (base ISO only)</option>
-              <option value="pain.008+SEPA_CORE" data-base="pain.008">SEPA Core Direct Debit</option>
-              <option value="pain.008+SEPA_B2B" data-base="pain.008">SEPA B2B Direct Debit</option>
-              <option value="pacs.008+SEPA_SCT" data-base="pacs.008">SEPA Credit Transfer</option>
+              <optgroup label="Europe — SEPA">
+                <option value="pain.008+SEPA_CORE" data-base="pain.008">SEPA Core Direct Debit</option>
+                <option value="pain.008+SEPA_B2B" data-base="pain.008">SEPA B2B Direct Debit</option>
+                <option value="pacs.008+SEPA_SCT" data-base="pacs.008">SEPA Credit Transfer</option>
+                <option value="pacs.008+SEPA_SCT_INST" data-base="pacs.008">SEPA Instant Credit Transfer</option>
+              </optgroup>
+              <optgroup label="Cross-border">
+                <option value="pacs.008+SWIFT_CBPR" data-base="pacs.008">SWIFT CBPR+</option>
+                <option disabled>CGI-MP Corporate (coming soon)</option>
+              </optgroup>
+              <optgroup label="United Kingdom">
+                <option value="pacs.008+UK_CHAPS" data-base="pacs.008">UK CHAPS</option>
+                <option disabled>UK Faster Payments (coming soon)</option>
+                <option disabled>UK BACS Direct Debit (coming soon)</option>
+              </optgroup>
+              <optgroup label="United States">
+                <option value="pacs.008+US_FEDWIRE" data-base="pacs.008">US Fedwire</option>
+                <option value="pacs.008+US_RTP" data-base="pacs.008">US TCH RTP</option>
+                <option disabled>US FedNow (coming soon)</option>
+              </optgroup>
+              <optgroup label="Canada">
+                <option value="pain.008+CA_PAD" data-base="pain.008">Canadian PAD</option>
+                <option disabled>Lynx (coming soon)</option>
+              </optgroup>
+              <optgroup label="Asia-Pacific">
+                <option disabled>SG FAST (coming soon)</option>
+                <option disabled>AU NPP (coming soon)</option>
+                <option disabled>IN RTGS (coming soon)</option>
+              </optgroup>
+              <optgroup label="Switzerland">
+                <option disabled>SIC (coming soon)</option>
+              </optgroup>
             </select>
           </div>
         </div>
@@ -156,6 +189,55 @@
     </div>
   </div>
 
+
+  <!-- GLOSSARY MODAL -->
+  <div id="glossary-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body glossary-modal-dialog" style="padding:0">
+      <div class="glossary-header">
+        <h3>About This Validator</h3>
+        <button class="uk-modal-close" type="button" uk-close></button>
+      </div>
+      <div class="glossary-body">
+        <p>This tool checks whether your ISO 20022 XML payment messages are correctly formatted before you send them to a bank or clearing system.</p>
+
+        <p>A payment message goes through <u>three layers of validation</u> before it is accepted. Getting past one layer does not guarantee the next.</p>
+
+        <div class="uk-grid uk-grid-medium uk-margin-medium-top" uk-grid>
+          <div class="uk-width-1-4">
+            <span class="layer-label layer-1">Layer 1</span>
+          </div>
+          <div class="uk-width-3-4">
+            <strong>Base ISO message structure</strong>
+            <p>Are the required fields present? Are codes from the right lists? Are IBANs and BICs correctly formatted? This is what the ISO 20022 standard itself defines. Think of it as grammar. The sentence is well-formed.</p>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-grid-medium uk-margin-medium-top" uk-grid>
+          <div class="uk-width-1-4">
+            <span class="layer-label layer-2">Layer 2</span>
+          </div>
+          <div class="uk-width-3-4">
+            <strong>Scheme and market practice rules</strong>
+            <p>Payment schemes like SEPA, CHAPS, Fedwire, and SWIFT CBPR+ impose additional rules on top of the base standard. Fields that are optional in ISO become mandatory under a specific scheme. Code values get restricted. A message can be perfectly valid ISO and still be rejected because it is missing a Creditor Scheme ID or using the wrong Service Level code.</p>
+          </div>
+        </div>
+
+        <div class="uk-grid uk-grid-medium uk-margin-medium-top" uk-grid>
+          <div class="uk-width-1-4">
+            <span class="layer-label layer-3">Layer 3</span>
+          </div>
+          <div class="uk-width-3-4">
+            <strong>Bank implementation guides</strong>
+            <p>Individual banks add their own rules: version pinning, rejecting optional elements they don't support, proprietary code lists, channel-specific headers. These "house rules" are different at every bank and are often buried in PDF implementation guides.</p>
+          </div>
+        </div>
+
+        <div class="glossary-coverage uk-margin-medium-top">
+          <p><strong>This tool covers Layer 1 and Layer 2.</strong> Select a scheme profile from the dropdown to validate against scheme-specific rules. Layer 3 is inherently bank-specific. A generic tool cannot cover it, but layers 1 and 2 together catch the majority of errors that can be caught before submission.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="assets/app.js"></script>
 </body>

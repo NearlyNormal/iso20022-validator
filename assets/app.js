@@ -429,6 +429,108 @@ var profileRegistry = {
     },
     additionalFormatRules: [],
   },
+  'pacs.008+SEPA_SCT_INST': {
+    baseSchema: 'pacs.008',
+    name: 'SEPA Instant Credit Transfer',
+    description: 'EPC SEPA Instant Credit Transfer scheme rules',
+    additionalMandatory: [
+      'CdtTrfTxInf/PmtTpInf/SvcLvl/Cd',
+      'CdtTrfTxInf/PmtTpInf/LclInstrm/Cd',
+    ],
+    restrictedCodes: {
+      'CdtTrfTxInf/PmtTpInf/SvcLvl/Cd': ['SEPA'],
+      'CdtTrfTxInf/PmtTpInf/LclInstrm/Cd': ['INST'],
+      'CdtTrfTxInf/ChrgBr': ['SLEV'],
+    },
+    additionalFormatRules: [],
+  },
+  'pacs.008+SWIFT_CBPR': {
+    baseSchema: 'pacs.008',
+    name: 'SWIFT CBPR+',
+    description: 'SWIFT Cross-Border Payments and Reporting Plus usage rules',
+    additionalMandatory: [
+      'CdtTrfTxInf/DbtrAgt/FinInstnId/BICFI',
+      'CdtTrfTxInf/CdtrAgt/FinInstnId/BICFI',
+      'CdtTrfTxInf/ChrgBr',
+    ],
+    restrictedCodes: {
+      'GrpHdr/SttlmInf/SttlmMtd': ['CLRG', 'INDA', 'INGA'],
+      'CdtTrfTxInf/ChrgBr': ['DEBT', 'CRED', 'SHAR'],
+    },
+    additionalFormatRules: [
+      { path: 'CdtTrfTxInf/DbtrAgt/FinInstnId/BICFI', pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/ },
+      { path: 'CdtTrfTxInf/CdtrAgt/FinInstnId/BICFI', pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/ },
+    ],
+  },
+  'pacs.008+UK_CHAPS': {
+    baseSchema: 'pacs.008',
+    name: 'UK CHAPS',
+    description: 'Bank of England CHAPS ISO 20022 usage rules',
+    additionalMandatory: [
+      'CdtTrfTxInf/DbtrAgt/FinInstnId/BICFI',
+      'CdtTrfTxInf/CdtrAgt/FinInstnId/BICFI',
+      'CdtTrfTxInf/ChrgBr',
+    ],
+    restrictedCodes: {
+      'GrpHdr/SttlmInf/SttlmMtd': ['CLRG'],
+      'CdtTrfTxInf/ChrgBr': ['SHAR'],
+    },
+    additionalFormatRules: [
+      { path: 'CdtTrfTxInf/DbtrAgt/FinInstnId/BICFI', pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/ },
+      { path: 'CdtTrfTxInf/CdtrAgt/FinInstnId/BICFI', pattern: /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/ },
+    ],
+  },
+  'pacs.008+US_FEDWIRE': {
+    baseSchema: 'pacs.008',
+    name: 'US Fedwire',
+    description: 'Federal Reserve Fedwire Funds Service ISO 20022 usage rules',
+    additionalMandatory: [
+      'CdtTrfTxInf/DbtrAgt/FinInstnId/BICFI',
+      'CdtTrfTxInf/CdtrAgt/FinInstnId/BICFI',
+      'CdtTrfTxInf/ChrgBr',
+    ],
+    restrictedCodes: {
+      'GrpHdr/SttlmInf/SttlmMtd': ['CLRG'],
+      'CdtTrfTxInf/ChrgBr': ['SHAR'],
+    },
+    additionalFormatRules: [
+      { path: 'GrpHdr/MsgId', maxLength: 35 },
+      { path: 'CdtTrfTxInf/PmtId/EndToEndId', maxLength: 35 },
+    ],
+  },
+  'pacs.008+US_RTP': {
+    baseSchema: 'pacs.008',
+    name: 'US TCH RTP',
+    description: 'The Clearing House Real-Time Payments ISO 20022 usage rules',
+    additionalMandatory: [
+      'CdtTrfTxInf/DbtrAgt/FinInstnId/BICFI',
+      'CdtTrfTxInf/CdtrAgt/FinInstnId/BICFI',
+      'CdtTrfTxInf/ChrgBr',
+    ],
+    restrictedCodes: {
+      'GrpHdr/SttlmInf/SttlmMtd': ['CLRG'],
+      'CdtTrfTxInf/ChrgBr': ['SHAR'],
+    },
+    additionalFormatRules: [],
+  },
+  'pain.008+CA_PAD': {
+    baseSchema: 'pain.008',
+    name: 'Canadian PAD',
+    description: 'Payments Canada Pre-Authorized Debit scheme rules',
+    additionalMandatory: [
+      'PmtInf/PmtTpInf/LclInstrm/Cd',
+      'PmtInf/PmtTpInf/SeqTp',
+      'PmtInf/CdtrSchmeId/Id/PrvtId/Othr/Id',
+    ],
+    restrictedCodes: {
+      'PmtInf/PmtMtd': ['DD'],
+      'PmtInf/PmtTpInf/LclInstrm/Cd': ['PAD'],
+      'PmtInf/PmtTpInf/SeqTp': ['FRST', 'RCUR', 'OOFF', 'FNAL'],
+    },
+    additionalFormatRules: [
+      { path: 'PmtInf/CdtrSchmeId/Id/PrvtId/Othr/Id', maxLength: 35 },
+    ],
+  },
 };
 
 // ─── DOM REFS ───
@@ -442,6 +544,14 @@ var resultsContent = document.getElementById('results-content');
 var emptyState = document.getElementById('empty-state');
 var profileSelect = document.getElementById('profile-select');
 
+// ─── GLOSSARY MODAL ───
+var glossaryBtn = document.getElementById('glossary-btn');
+if (glossaryBtn) {
+  glossaryBtn.addEventListener('click', function() {
+    UIkit.modal('#glossary-modal').show();
+  });
+}
+
 // ─── PROFILE DROPDOWN FILTERING ───
 function filterProfileOptions(detectedBase) {
   if (!profileSelect) return;
@@ -451,10 +561,27 @@ function filterProfileOptions(detectedBase) {
   for (var i = 0; i < options.length; i++) {
     var opt = options[i];
     if (opt.value === 'none') { opt.hidden = false; continue; }
+    if (opt.disabled) { opt.hidden = !(!detectedBase || (opt.parentElement && opt.parentElement.tagName === 'OPTGROUP' && !opt.parentElement.hidden)); continue; }
     var base = opt.getAttribute('data-base');
     var show = !detectedBase || base === detectedBase;
     opt.hidden = !show;
     if (show && opt.value === currentValue) hasValidSelection = true;
+  }
+  // Hide optgroups where all children are hidden
+  var groups = profileSelect.querySelectorAll('optgroup');
+  for (var g = 0; g < groups.length; g++) {
+    var children = groups[g].querySelectorAll('option');
+    var anyVisible = false;
+    for (var c = 0; c < children.length; c++) {
+      if (!children[c].hidden) { anyVisible = true; break; }
+    }
+    groups[g].hidden = !anyVisible;
+  }
+  // Re-check disabled options visibility after optgroup hiding
+  for (var i = 0; i < options.length; i++) {
+    if (options[i].disabled && options[i].parentElement && options[i].parentElement.hidden) {
+      options[i].hidden = true;
+    }
   }
   if (!hasValidSelection) profileSelect.value = 'none';
 }

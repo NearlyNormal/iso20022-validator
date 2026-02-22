@@ -14,7 +14,9 @@ Getting these messages wrong means failed payments, rejected transactions, and d
 
 ## What this tool does
 
-This is a free, browser-based validator. Open the HTML file, paste your XML payment message, and get instant feedback: which fields are missing, which codes are invalid, whether your IBANs and BICs are correctly formatted. No software to install, no server to run, no account to create.
+A valid ISO 20022 message can still be rejected. There are three layers between your XML and a successful payment: **Layer 1** (base ISO message structure), **Layer 2** (scheme and market practice rules like SEPA, CHAPS, Fedwire), and **Layer 3** (bank-specific implementation guides). Most real-world rejections happen at layers 2 and 3. This tool covers **Layer 1 and Layer 2**.
+
+It is a free, browser-based validator. Open the HTML file, paste your XML payment message, and get instant feedback: which fields are missing, which codes are invalid, whether your IBANs and BICs are correctly formatted. Select a scheme profile — SEPA Core, SWIFT CBPR+, UK CHAPS, US Fedwire, Canadian PAD, and others — to check scheme-specific mandatory fields and restricted code values on top of the base schema. No software to install, no server to run, no account to create.
 
 It helps teams at banks of any size, payment processors, and fintech companies catch formatting errors before messages reach production systems, whether you're building a new integration, debugging a failed payment, or training staff on the ISO 20022 format.
 
@@ -139,6 +141,44 @@ Profiles overlay the base schema — they add constraints, never remove them.
 ## Tech stack
 
 Vanilla HTML, CSS, and JavaScript. Browser-native `DOMParser` for XML parsing. No Node.js, no npm, no build step, no server.
+
+## Scheme profile coverage
+
+The table below shows which Layer 2 profiles are currently implemented and which are on the roadmap. Layer 3 (bank-specific house rules) is inherently per-institution and outside the scope of a generic open-source tool.
+
+### Currently implemented
+
+| Profile | Base message | Region | Description |
+|---------|-------------|--------|-------------|
+| SEPA Core Direct Debit | pain.008 | Europe | EPC Core Direct Debit rulebook |
+| SEPA B2B Direct Debit | pain.008 | Europe | EPC Business-to-Business Direct Debit rulebook |
+| SEPA Credit Transfer | pacs.008 | Europe | EPC Credit Transfer rulebook |
+| SEPA Instant Credit Transfer | pacs.008 | Europe | EPC SCT Inst rulebook |
+| SWIFT CBPR+ | pacs.008 | Cross-border | SWIFT Cross-Border Payments and Reporting Plus |
+| UK CHAPS | pacs.008 | United Kingdom | Bank of England CHAPS ISO 20022 implementation |
+| US Fedwire | pacs.008 | United States | Federal Reserve Fedwire Funds Service |
+| US TCH RTP | pacs.008 | United States | The Clearing House Real-Time Payments |
+| Canadian PAD | pain.008 | Canada | Payments Canada Pre-Authorized Debit (Rule H1) |
+
+### Roadmap — profiles not yet implemented
+
+These appear as disabled entries in the profile dropdown.
+
+**Europe:** SEPA COR1 (legacy, mostly retired but still seen in archives)
+
+**United Kingdom:** UK Faster Payments ISO migration profile, BACS Direct Debit ISO overlay
+
+**United States:** FedNow, NACHA ACH ISO wrappers (when available)
+
+**Canada:** Lynx (high-value, ISO-native), RTR (Real-Time Rail)
+
+**Asia-Pacific:** Singapore FAST, Singapore MEPS+, Australia NPP, India RTGS, India UPI ISO overlay
+
+**Switzerland:** SIC ISO 20022
+
+**Corporate:** CGI-MP (Common Global Implementation — Market Practice) pain.001 and pain.008 profiles for multinational corporates
+
+Each of these schemes has its own mandatory fields, restricted code values, character set rules, and conditional logic. Contributions are welcome — adding a profile follows the same pattern documented in "Adding a scheme profile" above.
 
 ## Further reading
 
