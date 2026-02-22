@@ -164,19 +164,27 @@ The table below shows which Layer 2 profiles are currently implemented and which
 
 These appear as disabled entries in the profile dropdown.
 
-**Europe:** SEPA COR1 (legacy, mostly retired but still seen in archives)
-
-**United Kingdom:** UK Faster Payments ISO migration profile, BACS Direct Debit ISO overlay
-
-**United States:** FedNow, NACHA ACH ISO wrappers (when available)
-
-**Canada:** Lynx (high-value, ISO-native), RTR (Real-Time Rail)
-
-**Asia-Pacific:** Singapore FAST, Singapore MEPS+, Australia NPP, India RTGS, India UPI ISO overlay
-
-**Switzerland:** SIC ISO 20022
-
-**Corporate:** CGI-MP (Common Global Implementation Market Practice) pain.001 and pain.008 profiles for multinational corporates
+- **Europe**
+  - SEPA COR1 (legacy, mostly retired but still seen in archives)
+- **United Kingdom**
+  - UK Faster Payments ISO migration profile
+  - BACS Direct Debit ISO overlay
+- **United States**
+  - FedNow
+  - NACHA ACH ISO wrappers (when available)
+- **Canada**
+  - Lynx (high-value, ISO-native)
+  - RTR (Real-Time Rail)
+- **Asia-Pacific**
+  - Singapore FAST
+  - Singapore MEPS+
+  - Australia NPP
+  - India RTGS
+  - India UPI ISO overlay
+- **Switzerland**
+  - SIC ISO 20022
+- **Corporate**
+  - CGI-MP (Common Global Implementation Market Practice) pain.001 and pain.008 profiles for multinational corporates
 
 Each of these schemes has its own mandatory fields, restricted code values, character set rules, and conditional logic. Contributions are welcome. Adding a profile follows the same pattern documented in "Adding a scheme profile" above.
 
