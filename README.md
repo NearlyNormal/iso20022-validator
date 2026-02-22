@@ -12,15 +12,11 @@ The standard organises messages into families by function:
 
 Getting these messages wrong means failed payments, rejected transactions, and delays that cost real money. Today, the tools available to check these messages before sending them are either expensive enterprise software or require setting up complex development environments. A payments engineer at a small bank or fintech startup faces the same XML formatting requirements as JPMorgan, but without the same tooling budget.
 
-## In plain terms
-
-ISO 20022 is the global standard for how banks talk to each other when moving money. Every wire transfer, direct debit, and statement is an XML file that has to follow strict formatting rules. This tool lets you paste one of those XML files into your browser and instantly tells you if anything is wrong with it, before you send it anywhere.
-
 ## What this tool does
 
-A valid ISO 20022 message can still be rejected. There are three layers between your XML and a successful payment: **Layer 1** (base ISO message structure), **Layer 2** (scheme and market practice rules like SEPA, CHAPS, Fedwire), and **Layer 3** (bank-specific implementation guides). Most real-world rejections happen at layers 2 and 3. This tool covers **Layer 1 and Layer 2**.
+This is a free, browser-based validator for ISO 20022 XML payment messages. Paste your XML, select a scheme profile, and get instant feedback: which fields are missing, which codes are invalid, and whether your IBANs and BICs are correctly formatted. No software to install, no server to run, no account to create.
 
-It is a free, browser-based validator. Open the HTML file, paste your XML payment message, and get instant feedback: which fields are missing, which codes are invalid, whether your IBANs and BICs are correctly formatted. Select a scheme profile (SEPA Core, SWIFT CBPR+, UK CHAPS, US Fedwire, Canadian PAD, and others) to check scheme-specific mandatory fields and restricted code values on top of the base schema. No software to install, no server to run, no account to create.
+A valid ISO 20022 message can still be rejected. There are three layers between your XML and a successful payment: **Layer 1** (base ISO message structure), **Layer 2** (scheme and market practice rules like SEPA, CHAPS, Fedwire), and **Layer 3** (bank-specific implementation guides). Most real-world rejections happen at layers 2 and 3. This tool covers **Layer 1 and Layer 2**. Select a scheme profile (SEPA Core, SWIFT CBPR+, UK CHAPS, US Fedwire, Canadian PAD, and others) to check scheme-specific mandatory fields and restricted code values on top of the base schema.
 
 It helps teams at banks of any size, payment processors, and fintech companies catch formatting errors before messages reach production systems, whether you're building a new integration, debugging a failed payment, or training staff on the ISO 20022 format.
 
