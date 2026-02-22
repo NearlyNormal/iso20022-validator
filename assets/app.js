@@ -921,12 +921,23 @@ function showDiff(userXml) {
   var leftPanel = document.getElementById('diff-left');
   var rightPanel = document.getElementById('diff-right');
   var lh = '', rh = '';
+  var leftNum = 0, rightNum = 0;
   for (var i = 0; i < diff.length; i++) {
     var d = diff[i];
     var e = esc(d.text || '');
-    if (d.type === 'same') { lh += '<span class="diff-line diff-same">' + e + '</span>\n'; rh += '<span class="diff-line diff-same">' + e + '</span>\n'; }
-    else if (d.type === 'removed') { lh += '<span class="diff-line diff-removed">' + e + '</span>\n'; rh += '<span class="diff-line">\n</span>\n'; }
-    else { lh += '<span class="diff-line">\n</span>\n'; rh += '<span class="diff-line diff-added">' + e + '</span>\n'; }
+    if (d.type === 'same') {
+      leftNum++; rightNum++;
+      lh += '<div class="diff-line diff-same"><span class="diff-line-num">' + leftNum + '</span><span class="diff-line-text">' + e + '</span></div>';
+      rh += '<div class="diff-line diff-same"><span class="diff-line-num">' + rightNum + '</span><span class="diff-line-text">' + e + '</span></div>';
+    } else if (d.type === 'removed') {
+      leftNum++;
+      lh += '<div class="diff-line diff-removed"><span class="diff-line-num">' + leftNum + '</span><span class="diff-line-text">' + e + '</span></div>';
+      rh += '<div class="diff-line"><span class="diff-line-num"></span><span class="diff-line-text"></span></div>';
+    } else {
+      rightNum++;
+      lh += '<div class="diff-line"><span class="diff-line-num"></span><span class="diff-line-text"></span></div>';
+      rh += '<div class="diff-line diff-added"><span class="diff-line-num">' + rightNum + '</span><span class="diff-line-text">' + e + '</span></div>';
+    }
   }
   leftPanel.innerHTML = lh;
   rightPanel.innerHTML = rh;

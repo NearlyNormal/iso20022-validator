@@ -62,30 +62,38 @@ In practice, the 7 we have cover the **most commonly validated payment flows** �
 
 Just open `index.html` in your browser. That's it. No server required.
 
-## Technical note
+## Architecture
 
-Everything is contained in a single HTML file. All validation schemas, sample XML messages, and application logic are inlined directly into `index.html`. An earlier version used ES6 `import`/`export` modules with separate schema files, but browsers block module imports over the `file://` protocol due to CORS restrictions. Inlining everything removes the need for a local HTTP server and makes the tool truly portable: download one file and open it.
+```
+iso20022-validator/
+├── index.html              Entry point — open this in your browser
+├── assets/
+│   ├── style.css           All application styles
+│   ├── app.js              Validation engine, schemas, samples, UI logic
+│   ├── validate.svg        Icon assets used in the interface
+│   ├── load.svg
+│   ├── upload.svg
+│   ├── info.svg
+│   ├── actions.svg
+│   ├── copy.svg
+│   ├── compare.svg
+│   └── export.svg
+├── schemas/                Reference schema definitions (one JS file per message type)
+├── samples/                Reference sample XML files (one per message type)
+└── README.md
+```
 
-The separate schema files in `schemas/` and sample files in `samples/` are kept for reference but are not loaded at runtime.
+`assets/app.js` contains the schema registry, sample XML data, validation engine, and all UI wiring. Schemas and samples are inlined into this file so the tool works by simply opening `index.html` — no server needed. The `schemas/` and `samples/` folders are kept as standalone reference files but are not loaded at runtime.
 
 ## Adding a new message type
 
-1. Add a new entry to the `schemaRegistry` object in `index.html` with `messageType`, `rootElement`, `namespace`, `mandatoryPaths`, `codeValues`, `formatRules`, and `extractionMap`
-2. Add a sample XML string to the `sampleXMLData` object
-3. Add an `<option>` to the message type dropdown
-4. Add the mapping to `sampleFileMap`
+1. Add a schema entry to `schemaRegistry` in `assets/app.js` with `messageType`, `rootElement`, `namespace`, `mandatoryPaths`, `codeValues`, `formatRules`, and `extractionMap`
+2. Add a sample XML string to `sampleXMLData` in the same file
+3. Add a dropdown `<li>` in `index.html` and the mapping to `sampleFileMap`
 
-## Tech Stack
+## Tech stack
 
-| Layer | Choice |
-|-------|--------|
-| UI Framework | [UIKit 3](https://getuikit.com) |
-| Fonts | IBM Plex Sans + IBM Plex Mono |
-| XML Parsing | Browser-native DOMParser |
-| Schema Validation | Custom JS rule engine |
-| Syntax Highlighting | highlight.js (CDN) |
-
-No Node.js. No npm. No build step. No server.
+Vanilla HTML, CSS, and JavaScript. Browser-native `DOMParser` for XML parsing. No Node.js, no npm, no build step, no server.
 
 ## License
 

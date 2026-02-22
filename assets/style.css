@@ -619,21 +619,59 @@ body {
 }
 
 /* ─── DIFF MODAL ─── */
+#diff-modal {
+  overflow: hidden !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+#diff-modal .uk-modal-dialog {
+  position: fixed;
+  top: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  width: 90vw;
+  max-width: 1200px;
+  height: calc(100vh - 6rem);
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.diff-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: var(--accent-bg);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  min-height: 56px;
+}
+
+.diff-header h3 {
+  font-family: var(--font-mono);
+  font-size: var(--size-md);
+  font-weight: 600;
+  margin: 0;
+}
+
 .diff-body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
-  height: 60vh;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 
 .diff-panel {
   overflow: auto;
-  padding: 14px;
   font-family: var(--font-mono);
-  font-size: var(--size-sm);
-  line-height: 1.7;
-  white-space: pre;
+  font-size: var(--size-md);
+  line-height: 1.8;
 }
 
 .diff-panel-left {
@@ -641,22 +679,49 @@ body {
 }
 
 .diff-line {
-  display: block;
-  padding: 0 8px;
+  display: flex;
+  align-items: baseline;
+  padding: 0 10px;
+  min-height: 1.8em;
 }
 
-.diff-removed {
-  background: var(--error-bg);
+.diff-line:nth-child(odd) {
+  background: var(--bg-white);
+}
+
+.diff-line:nth-child(even) {
+  background: #F8F8F8;
+}
+
+.diff-line-num {
+  display: inline-block;
+  width: 36px;
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: 12px;
+  color: var(--text-muted);
+  font-size: var(--size-sm);
+  user-select: none;
+}
+
+.diff-line-text {
+  white-space: pre;
+  flex: 1;
+  min-width: 0;
+}
+
+.diff-line.diff-removed {
+  background: var(--error-bg) !important;
   color: var(--error);
 }
 
-.diff-added {
-  background: var(--success-bg);
+.diff-line.diff-added {
+  background: var(--success-bg) !important;
   color: var(--success);
 }
 
-.diff-same {
-  color: var(--text-secondary);
+.diff-line.diff-same {
+  color: var(--text-primary);
 }
 
 /* Hidden select for internal use */
