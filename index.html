@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISO 20022 Validator</title>
+  <!-- UIKit -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.25.12/dist/css/uikit.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.25.12/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.25.12/dist/js/uikit-icons.min.js"></script>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" id="hljs-theme">
+  <style>
+    :root {
+      --bg-white: #FFFFFF;
+      --bg-panel: #F8F9FA;
+      --bg-input: #F1F3F5;
+      --border: #DEE2E6;
+      --text-primary: #212529;
+      --text-secondary: #6C757D;
+      --text-muted: #ADB5BD;
+      --success: #198754;
+      --success-bg: rgba(25, 135, 84, 0.08);
+      --error: #DC3545;
+      --error-bg: rgba(220, 53, 69, 0.08);
+      --warning: #FFC107;
+      --warning-dark: #997404;
+      --warning-bg: rgba(255, 193, 7, 0.1);
+      --accent: #0D6EFD;
+      --cyan: #0DCAF0;
+      --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
+      --font-sans: 'IBM Plex Sans', -apple-system, sans-serif;
+
+      /* Size scale */
+      --size-xs: 0.65rem;
+      --size-sm: 0.75rem;
+      --size-base: 0.85rem;
+      --size-md: 0.9rem;
+      --size-lg: 1rem;
+      --size-code: 0.8rem;
+    }
+
+    html, body {
+      font-family: var(--font-sans);
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      background: var(--bg-panel);
+      height: 100%;
+      margin: 0;
+    }
+
+    /* ─── NAVBAR ─── */
+    .uk-navbar-container {
+      background: var(--bg-white) !important;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-sans);
+    }
+
+    .app-title {
+      font-family: var(--font-mono);
+      font-size: var(--size-lg);
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+
+    .app-title .accent { color: var(--success); }
+
+    .version-badge {
+      font-family: var(--font-mono);
+      font-size: var(--size-xs);
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--success);
+      background: var(--success-bg);
+      border: 1px solid rgba(25, 135, 84, 0.15);
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 8px;
+    }
+
+    .uk-select, .uk-button {
+      font-family: var(--font-sans);
+      font-size: var(--size-base);
+    }
+
+    /* ─── MAIN GRID ─── */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 80px);
+    }
+
+    .panels-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      min-height: 0;
+      margin: 12px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--bg-white);
+    }
+
+    @media (max-width: 960px) {
+      .panels-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr;
+      }
+    }
+
+    /* ─── PANEL COMMON ─── */
+    .panel {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .panel:first-child {
+      border-right: 1px solid var(--border);
+    }
+
+    @media (max-width: 960px) {
+      .panel:first-child {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: var(--size-sm);
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .panel-body {
+      flex: 1;
+      overflow: auto;
+      min-height: 0;
+    }
+
+    /* ─── EDITOR (left panel) ─── */
+    .editor-wrap {
+      position: relative;
+      height: 100%;
+    }
+
+    #xml-input {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      font-family: var(--font-mono);
+      font-size: var(--size-code);
+      line-height: 1.7;
+      padding: 14px 16px;
+      background: transparent;
+      color: transparent;
+      caret-color: var(--accent);
+      border: none;
+      resize: none;
+      outline: none;
+      z-index: 2;
+      white-space: pre;
+      overflow: auto;
+      tab-size: 2;
+    }
+
+    #xml-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    #xml-highlighted {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      font-family: var(--font-mono);
+      font-size: var(--size-code);
+      line-height: 1.7;
+      padding: 14px 16px;
+      margin: 0;
+      background: var(--bg-white);
+      border: none;
+      overflow: auto;
+      pointer-events: none;
+      z-index: 1;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    #xml-highlighted code {
+      font-family: inherit;
+      font-size: inherit;
+      line-height: inherit;
+      background: transparent !important;
+      padding: 0 !important;
+    }
+
+    .error-line {
+      background: var(--error-bg);
+      border-left: 3px solid var(--error);
+      display: inline-block;
+      width: 100%;
+      margin-left: -3px;
+      padding-left: 3px;
+    }
+
+    .warning-line {
+      background: var(--warning-bg);
+      border-left: 3px solid var(--warning);
+      display: inline-block;
+      width: 100%;
+      margin-left: -3px;
+      padding-left: 3px;
+    }
+
+    /* ─── RESULTS (right panel) ─── */
+    .results-body {
+      padding: 16px;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      color: var(--text-muted);
+      padding: 40px;
+    }
+
+    .empty-state-text {
+      font-size: var(--size-md);
+      line-height: 1.8;
+      margin-top: 12px;
+    }
+
+    /* ─── VALIDATION SUMMARY ─── */
+    .validation-summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-family: var(--font-sans);
+      font-size: var(--size-md);
+      font-weight: 600;
+    }
+
+    .summary-valid {
+      background: var(--success-bg);
+      border: 1px solid rgba(25, 135, 84, 0.2);
+      color: var(--success);
+    }
+
+    .summary-invalid {
+      background: var(--error-bg);
+      border: 1px solid rgba(220, 53, 69, 0.2);
+      color: var(--error);
+    }
+
+    .msg-type-badge {
+      font-family: var(--font-mono);
+      font-size: var(--size-sm);
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      margin-left: auto;
+      font-weight: 500;
+    }
+
+    /* ─── SECTION HEADERS ─── */
+    .section-header {
+      font-family: var(--font-mono);
+      font-size: var(--size-sm);
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 12px 0 8px;
+      border-bottom: 1px solid var(--bg-input);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-count {
+      font-size: var(--size-xs);
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: var(--bg-input);
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    /* ─── ERROR LIST ─── */
+    .error-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      margin-bottom: 4px;
+      border-radius: 6px;
+      font-size: var(--size-base);
+      line-height: 1.5;
+      cursor: pointer;
+      transition: background 150ms ease;
+    }
+
+    .error-item:hover {
+      background: var(--bg-panel);
+    }
+
+    .error-item .ei-icon {
+      flex-shrink: 0;
+      width: 16px;
+      text-align: center;
+      margin-top: 2px;
+      font-weight: 700;
+    }
+
+    .error-item.type-error .ei-icon { color: var(--error); }
+    .error-item.type-warning .ei-icon { color: var(--warning-dark); }
+
+    .error-item .field-path {
+      font-family: var(--font-mono);
+      font-size: var(--size-sm);
+      color: var(--accent);
+      display: block;
+      margin-top: 3px;
+    }
+
+    /* ─── EXTRACTED FIELDS ─── */
+    .fields-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 12px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: var(--size-base);
+      transition: background 150ms ease;
+    }
+
+    .field-row:hover { background: var(--bg-panel); }
+
+    .field-label {
+      font-family: var(--font-mono);
+      font-size: var(--size-sm);
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      padding-top: 2px;
+    }
+
+    .field-value {
+      font-family: var(--font-mono);
+      font-size: var(--size-code);
+      color: var(--text-primary);
+      word-break: break-all;
+    }
+
+    .field-value .amount {
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .field-value .currency-tag {
+      font-size: var(--size-xs);
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: var(--success-bg);
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .field-value .status-badge {
+      font-size: var(--size-xs);
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .status-accepted { background: var(--success-bg); color: var(--success); }
+    .status-rejected { background: var(--error-bg); color: var(--error); }
+    .status-pending { background: var(--warning-bg); color: var(--warning-dark); }
+
+    /* ─── ACTIONS ─── */
+    .actions-row {
+      display: flex;
+      gap: 8px;
+      padding-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .actions-row .uk-button-default {
+      font-size: var(--size-sm);
+      padding: 0 14px;
+      height: 34px;
+      line-height: 34px;
+    }
+
+    /* ─── TOAST ─── */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      font-family: var(--font-mono);
+      font-size: var(--size-code);
+      padding: 12px 20px;
+      border-radius: 6px;
+      background: var(--success);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(25, 135, 84, 0.25);
+      z-index: 1100;
+      animation: toastSlide 300ms ease, toastFade 300ms ease 2s forwards;
+    }
+
+    @keyframes toastSlide { from { opacity: 0; transform: translateY(10px); } }
+    @keyframes toastFade { to { opacity: 0; transform: translateY(10px); } }
+
+    /* ─── DIFF MODAL ─── */
+    .diff-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      height: 60vh;
+      overflow: hidden;
+    }
+
+    .diff-panel {
+      overflow: auto;
+      padding: 14px;
+      font-family: var(--font-mono);
+      font-size: var(--size-sm);
+      line-height: 1.7;
+      white-space: pre;
+    }
+
+    .diff-panel-left { border-right: 1px solid var(--border); }
+
+    .diff-line { display: block; padding: 0 8px; }
+    .diff-removed { background: var(--error-bg); color: var(--error); }
+    .diff-added { background: var(--success-bg); color: var(--success); }
+    .diff-same { color: var(--text-secondary); }
+
+    /* ─── STATUS BAR ─── */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      height: 28px;
+      background: var(--bg-white);
+      border-top: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: var(--size-xs);
+      color: var(--text-muted);
+    }
+
+    .status-bar .status-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+      margin-right: 6px;
+    }
+
+    /* Upload label override */
+    .upload-label {
+      font-family: var(--font-mono);
+      font-size: var(--size-sm);
+      font-weight: 500;
+      color: var(--accent);
+      cursor: pointer;
+      padding: 3px 10px;
+      border-radius: 4px;
+      transition: background 150ms;
+    }
+
+    .upload-label:hover {
+      background: rgba(13, 110, 253, 0.06);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="uk-navbar-container" uk-navbar>
+    <div class="uk-navbar-left uk-margin-left">
+      <span class="app-title"><span class="accent">&gt;</span> ISO 20022 Validator</span>
+      <span class="version-badge">v1.2</span>
+    </div>
+    <div class="uk-navbar-right uk-margin-right">
+      <div class="uk-navbar-item">
+        <select class="uk-select uk-form-small uk-form-width-medium" id="message-type-select">
+          <option value="auto">Auto-detect</option>
+          <optgroup label="Core Messages">
+            <option value="pacs.008">pacs.008 &mdash; FI to FI Credit Transfer</option>
+            <option value="pain.001">pain.001 &mdash; Customer Credit Transfer</option>
+            <option value="pacs.002">pacs.002 &mdash; Payment Status Report</option>
+            <option value="camt.053">camt.053 &mdash; Bank to Customer Statement</option>
+          </optgroup>
+          <optgroup label="Extended Messages">
+            <option value="camt.054">camt.054 &mdash; Debit/Credit Notification</option>
+            <option value="pacs.004">pacs.004 &mdash; Payment Return</option>
+            <option value="pacs.009">pacs.009 &mdash; FI to FI Institution Transfer</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="uk-navbar-item">
+        <button class="uk-button uk-button-default uk-button-small" id="load-sample-btn">
+          <span uk-icon="icon: download; ratio: 0.8"></span> Load Sample
+        </button>
+      </div>
+      <div class="uk-navbar-item">
+        <button class="uk-button uk-button-primary uk-button-small" id="validate-btn">
+          <span uk-icon="icon: check; ratio: 0.8"></span> Validate
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="app-container">
+    <div class="panels-grid">
+      <!-- LEFT: XML Input -->
+      <div class="panel">
+        <div class="panel-header">
+          <span>XML Input</span>
+          <label class="upload-label">
+            <span uk-icon="icon: upload; ratio: 0.7"></span> Upload File
+            <input type="file" id="file-upload" accept=".xml,.txt" hidden>
+          </label>
+        </div>
+        <div class="panel-body">
+          <div class="editor-wrap">
+            <textarea id="xml-input" placeholder="Paste ISO 20022 XML here..." spellcheck="false"></textarea>
+            <pre id="xml-highlighted"><code id="xml-code" class="language-xml"></code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Results -->
+      <div class="panel">
+        <div class="panel-header">
+          <span>Validation Results</span>
+        </div>
+        <div class="panel-body">
+          <div id="results-content" class="results-body">
+            <div class="empty-state" id="empty-state">
+              <span uk-icon="icon: search; ratio: 2.5" style="color: var(--text-muted); opacity: 0.3;"></span>
+              <div class="empty-state-text">
+                Paste or upload an ISO 20022 XML message<br>
+                then click <strong>Validate</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="status-bar">
+      <div><span class="status-dot"></span><span id="status-text">Ready</span></div>
+      <div><span id="char-count">0 chars</span> &nbsp; ISO 20022</div>
+    </div>
+  </div>
+
+  <!-- DIFF MODAL -->
+  <div id="diff-modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body uk-width-xxlarge" style="padding:0">
+      <div class="uk-flex uk-flex-between uk-flex-middle" style="padding:14px 20px;border-bottom:1px solid var(--border)">
+        <h3 class="uk-modal-title" style="font-family:var(--font-mono);font-size:var(--size-md);font-weight:600;margin:0">Diff: Your Message vs. Sample</h3>
+        <button class="uk-modal-close" type="button" uk-close></button>
+      </div>
+      <div class="diff-body">
+        <div class="diff-panel diff-panel-left" id="diff-left"></div>
+        <div class="diff-panel diff-panel-right" id="diff-right"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // ─── HIGHLIGHT.JS ───
+    let hljsAvailable = false;
+    let hljs = null;
+
+    try {
+      const hljsModule = await import('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/es/highlight.min.js');
+      hljs = hljsModule.default;
+      const xmlLang = await import('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/es/languages/xml.min.js');
+      hljs.registerLanguage('xml', xmlLang.default);
+      hljsAvailable = true;
+    } catch (e) {
+      console.warn('highlight.js unavailable, using plain text');
+    }
+
+    // ─── SCHEMA IMPORTS ───
+    let schemaRegistry = {};
+
+    try {
+      const [pacs008, pain001, pacs002, camt053, camt054, pacs004, pacs009] = await Promise.all([
+        import('./schemas/pacs008.js'),
+        import('./schemas/pain001.js'),
+        import('./schemas/pacs002.js'),
+        import('./schemas/camt053.js'),
+        import('./schemas/camt054.js'),
+        import('./schemas/pacs004.js'),
+        import('./schemas/pacs009.js'),
+      ]);
+
+      schemaRegistry = {
+        'pacs.008': pacs008.pacs008Rules,
+        'pain.001': pain001.pain001Rules,
+        'pacs.002': pacs002.pacs002Rules,
+        'camt.053': camt053.camt053Rules,
+        'camt.054': camt054.camt054Rules,
+        'pacs.004': pacs004.pacs004Rules,
+        'pacs.009': pacs009.pacs009Rules,
+      };
+    } catch (e) {
+      console.error('Failed to load schemas:', e);
+    }
+
+    // ─── DOM REFS ───
+    const textarea = document.getElementById('xml-input');
+    const codeBlock = document.getElementById('xml-code');
+    const highlightPre = document.getElementById('xml-highlighted');
+    const validateBtn = document.getElementById('validate-btn');
+    const loadSampleBtn = document.getElementById('load-sample-btn');
+    const fileUpload = document.getElementById('file-upload');
+    const messageTypeSelect = document.getElementById('message-type-select');
+    const resultsContent = document.getElementById('results-content');
+    const emptyState = document.getElementById('empty-state');
+    const charCount = document.getElementById('char-count');
+    const statusText = document.getElementById('status-text');
+
+    // ─── HIGHLIGHTING ───
+    function updateHighlighting(xmlText) {
+      if (hljsAvailable && xmlText.trim()) {
+        codeBlock.innerHTML = hljs.highlight(xmlText, { language: 'xml' }).value;
+      } else {
+        codeBlock.textContent = xmlText;
+      }
+      charCount.textContent = `${xmlText.length} chars`;
+    }
+
+    textarea.addEventListener('input', () => updateHighlighting(textarea.value));
+
+    textarea.addEventListener('scroll', () => {
+      highlightPre.scrollTop = textarea.scrollTop;
+      highlightPre.scrollLeft = textarea.scrollLeft;
+    });
+
+    // ─── FILE UPLOAD ───
+    fileUpload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        textarea.value = ev.target.result;
+        updateHighlighting(ev.target.result);
+        statusText.textContent = `Loaded: ${file.name}`;
+      };
+      reader.readAsText(file);
+      fileUpload.value = '';
+    });
+
+    // ─── LOAD SAMPLE ───
+    const sampleFileMap = {
+      'auto': 'pacs008', 'pacs.008': 'pacs008', 'pain.001': 'pain001',
+      'pacs.002': 'pacs002', 'camt.053': 'camt053', 'camt.054': 'camt054',
+      'pacs.004': 'pacs004', 'pacs.009': 'pacs009',
+    };
+
+    loadSampleBtn.addEventListener('click', async () => {
+      const type = messageTypeSelect.value;
+      const filename = sampleFileMap[type] || 'pacs008';
+      try {
+        const resp = await fetch(`./samples/${filename}-sample.xml`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const text = await resp.text();
+        textarea.value = text;
+        updateHighlighting(text);
+        statusText.textContent = `Sample loaded: ${filename}`;
+      } catch (e) {
+        showToast('Failed to load sample file', true);
+      }
+    });
+
+    // ─── XML PATH RESOLVER ───
+    function findChildByLocalName(parent, localName) {
+      for (const child of parent.children) {
+        if (child.localName === localName) return child;
+      }
+      return null;
+    }
+
+    function resolveXMLPath(contextNode, path) {
+      const parts = path.split('/');
+      let current = contextNode;
+      for (const part of parts) {
+        if (!current) return null;
+        current = findChildByLocalName(current, part);
+      }
+      return current || null;
+    }
+
+    function getPathFromElement(el, stopAt) {
+      const parts = [];
+      let node = el;
+      while (node && node !== stopAt && node.localName) {
+        parts.unshift(node.localName);
+        node = node.parentElement;
+      }
+      return parts.join('/');
+    }
+
+    // ─── AUTO-DETECT ───
+    function detectMessageType(doc) {
+      const ns = doc.documentElement.namespaceURI || '';
+      for (const [key, schema] of Object.entries(schemaRegistry)) {
+        if (ns.includes(key.replace(/\./g, '.'))) {
+          const rootEl = doc.documentElement.getElementsByTagNameNS('*', schema.rootElement);
+          if (rootEl.length > 0) return key;
+        }
+      }
+      for (const [key, schema] of Object.entries(schemaRegistry)) {
+        const rootEl = doc.documentElement.getElementsByTagNameNS('*', schema.rootElement);
+        if (rootEl.length > 0) return key;
+      }
+      return null;
+    }
+
+    // ─── v1.1 FORMAT VALIDATORS ───
+    const IBAN_LENGTHS = {
+      AL:28,AD:24,AT:20,AZ:28,BH:22,BY:28,BE:16,BA:20,BR:29,BG:22,
+      CR:22,HR:21,CY:28,CZ:24,DK:18,DO:28,EG:29,EE:20,FO:18,FI:18,
+      FR:27,GE:22,DE:22,GI:23,GR:27,GL:18,GT:28,HU:28,IS:26,IQ:23,
+      IE:22,IL:23,IT:27,JO:30,KZ:20,XK:20,KW:30,LV:21,LB:28,LI:21,
+      LT:20,LU:20,MT:31,MR:27,MU:30,MC:27,MD:24,ME:22,NL:18,MK:19,
+      NO:15,PK:24,PS:29,PL:28,PT:25,QA:29,RO:24,LC:32,SM:27,SA:24,
+      RS:22,SC:31,SK:24,SI:19,ES:24,SE:24,CH:21,TL:23,TN:24,TR:26,
+      UA:29,AE:23,GB:22,VA:22,VG:24,
+    };
+
+    function validateIBAN(iban) {
+      const cleaned = iban.replace(/\s/g, '').toUpperCase();
+      if (!/^[A-Z]{2}\d{2}[A-Z0-9]{4,30}$/.test(cleaned)) {
+        return { valid: false, reason: 'Invalid IBAN format' };
+      }
+      const cc = cleaned.substring(0, 2);
+      if (IBAN_LENGTHS[cc] && cleaned.length !== IBAN_LENGTHS[cc]) {
+        return { valid: false, reason: `IBAN for ${cc} must be ${IBAN_LENGTHS[cc]} chars, got ${cleaned.length}` };
+      }
+      const rearranged = cleaned.substring(4) + cleaned.substring(0, 4);
+      const numericStr = rearranged.replace(/[A-Z]/g, (ch) => (ch.charCodeAt(0) - 55).toString());
+      let remainder = 0;
+      for (let i = 0; i < numericStr.length; i++) {
+        remainder = (remainder * 10 + parseInt(numericStr[i])) % 97;
+      }
+      return remainder === 1 ? { valid: true } : { valid: false, reason: 'IBAN checksum failed (mod-97)' };
+    }
+
+    function validateBIC(bic) {
+      const cleaned = bic.replace(/\s/g, '').toUpperCase();
+      if (!/^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(cleaned)) {
+        return { valid: false, reason: 'BIC must be 8 or 11 chars: BBBBCCLL[BBB]' };
+      }
+      return { valid: true };
+    }
+
+    const ISO_4217 = new Set([
+      'AED','AFN','ALL','AMD','ANG','AOA','ARS','AUD','AWG','AZN',
+      'BAM','BBD','BDT','BGN','BHD','BIF','BMD','BND','BOB','BRL',
+      'BSD','BTN','BWP','BYN','BZD','CAD','CDF','CHF','CLP','CNY',
+      'COP','CRC','CUP','CVE','CZK','DJF','DKK','DOP','DZD','EGP',
+      'ERN','ETB','EUR','FJD','FKP','GBP','GEL','GHS','GIP','GMD',
+      'GNF','GTQ','GYD','HKD','HNL','HTG','HUF','IDR','ILS',
+      'INR','IQD','IRR','ISK','JMD','JOD','JPY','KES','KGS','KHR',
+      'KMF','KPW','KRW','KWD','KYD','KZT','LAK','LBP','LKR','LRD',
+      'LSL','LYD','MAD','MDL','MGA','MKD','MMK','MNT','MOP','MRU',
+      'MUR','MVR','MWK','MXN','MYR','MZN','NAD','NGN','NIO','NOK',
+      'NPR','NZD','OMR','PAB','PEN','PGK','PHP','PKR','PLN','PYG',
+      'QAR','RON','RSD','RUB','RWF','SAR','SBD','SCR','SDG','SEK',
+      'SGD','SHP','SLE','SOS','SRD','SSP','STN','SYP','SZL','THB',
+      'TJS','TMT','TND','TOP','TRY','TTD','TWD','TZS','UAH','UGX',
+      'USD','UYU','UZS','VES','VND','VUV','WST','XAF','XCD','XOF',
+      'XPF','YER','ZAR','ZMW','ZWL',
+    ]);
+
+    function validateCurrency(code) {
+      return ISO_4217.has(code.toUpperCase()) ? { valid: true } : { valid: false, reason: `'${code}' is not a valid ISO 4217 currency` };
+    }
+
+    function validateISODate(dateStr) {
+      const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!match) return { valid: false, reason: 'Not a valid ISO date (YYYY-MM-DD)' };
+      const [, y, m, d] = match.map(Number);
+      const date = new Date(y, m - 1, d);
+      if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) {
+        return { valid: false, reason: `Invalid calendar date: ${dateStr}` };
+      }
+      return { valid: true };
+    }
+
+    function validateISODateTime(dtStr) {
+      if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(dtStr)) {
+        return { valid: false, reason: 'Not a valid ISO datetime' };
+      }
+      return isNaN(new Date(dtStr).getTime()) ? { valid: false, reason: `Cannot parse datetime: ${dtStr}` } : { valid: true };
+    }
+
+    // ─── EXTENDED VALIDATION (v1.1) ───
+    function runExtendedValidation(businessRoot, result) {
+      const ibanEls = businessRoot.getElementsByTagNameNS('*', 'IBAN');
+      for (const el of ibanEls) {
+        const val = el.textContent.trim();
+        if (!val) continue;
+        const check = validateIBAN(val);
+        if (!check.valid) {
+          result.errors.push({ type: 'iban', field: getPathFromElement(el, businessRoot), message: `Invalid IBAN '${val}': ${check.reason}` });
+        }
+      }
+
+      const bicEls = businessRoot.getElementsByTagNameNS('*', 'BICFI');
+      for (const el of bicEls) {
+        const val = el.textContent.trim();
+        if (!val) continue;
+        const check = validateBIC(val);
+        if (!check.valid) {
+          result.warnings.push({ type: 'bic', field: getPathFromElement(el, businessRoot), message: `Invalid BIC '${val}': ${check.reason}` });
+        }
+      }
+
+      const allEls = businessRoot.getElementsByTagNameNS('*', '*');
+      for (const el of allEls) {
+        const ccy = el.getAttribute('Ccy');
+        if (ccy) {
+          const check = validateCurrency(ccy);
+          if (!check.valid) {
+            result.errors.push({ type: 'currency', field: getPathFromElement(el, businessRoot), message: check.reason });
+          }
+        }
+      }
+    }
+
+    // ─── MAIN VALIDATE ───
+    function validate(xmlString, forceSchema = null) {
+      const result = { valid: false, errors: [], warnings: [], extracted: {}, messageType: null };
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(xmlString, 'application/xml');
+
+      const parseError = doc.querySelector('parsererror');
+      if (parseError) {
+        result.errors.push({ type: 'parse', field: null, message: 'XML parse error: ' + parseError.textContent.substring(0, 300) });
+        return result;
+      }
+
+      const detectedType = forceSchema || detectMessageType(doc);
+      if (!detectedType || !schemaRegistry[detectedType]) {
+        result.errors.push({ type: 'schema', field: null, message: `Unknown message type. Namespace: ${doc.documentElement.namespaceURI || 'none'}` });
+        return result;
+      }
+
+      const schema = schemaRegistry[detectedType];
+      result.messageType = schema.messageType;
+
+      const businessRoot = doc.documentElement.getElementsByTagNameNS('*', schema.rootElement)[0];
+      if (!businessRoot) {
+        result.errors.push({ type: 'structure', field: null, message: `Root element <${schema.rootElement}> not found` });
+        return result;
+      }
+
+      for (const path of schema.mandatoryPaths) {
+        const el = resolveXMLPath(businessRoot, path);
+        if (!el || !el.textContent.trim()) {
+          result.errors.push({ type: 'mandatory', field: path, message: `Missing mandatory field: ${path}` });
+        }
+      }
+
+      for (const [path, validCodes] of Object.entries(schema.codeValues)) {
+        const el = resolveXMLPath(businessRoot, path);
+        if (el && el.textContent.trim() && !validCodes.includes(el.textContent.trim())) {
+          result.errors.push({ type: 'code', field: path, message: `Invalid code '${el.textContent.trim()}'. Allowed: ${validCodes.join(', ')}` });
+        }
+      }
+
+      for (const rule of schema.formatRules) {
+        const el = resolveXMLPath(businessRoot, rule.path);
+        if (!el || !el.textContent.trim()) continue;
+        const value = el.textContent.trim();
+
+        if (rule.maxLength && value.length > rule.maxLength) {
+          result.errors.push({ type: 'format', field: rule.path, message: `${rule.path} exceeds max length ${rule.maxLength} (got ${value.length})` });
+        }
+        if (rule.type === 'ISODateTime') {
+          const check = validateISODateTime(value);
+          if (!check.valid) result.errors.push({ type: 'format', field: rule.path, message: `${rule.path}: ${check.reason}` });
+        }
+        if (rule.type === 'ISODate') {
+          const check = validateISODate(value);
+          if (!check.valid) result.errors.push({ type: 'format', field: rule.path, message: `${rule.path}: ${check.reason}` });
+        }
+        if ((rule.type === 'ActiveCurrencyAndAmount' || rule.type === 'ActiveOrHistoricCurrencyAndAmount') && rule.attribute) {
+          if (!/^\d+(\.\d{1,5})?$/.test(value)) {
+            result.errors.push({ type: 'format', field: rule.path, message: `${rule.path} is not a valid decimal amount: ${value}` });
+          }
+          const ccy = el.getAttribute(rule.attribute);
+          if (!ccy) {
+            result.errors.push({ type: 'format', field: rule.path, message: `Missing '${rule.attribute}' attribute on ${rule.path}` });
+          } else {
+            const ccyCheck = validateCurrency(ccy);
+            if (!ccyCheck.valid) result.errors.push({ type: 'currency', field: rule.path, message: ccyCheck.reason });
+          }
+        }
+        if (rule.pattern && !rule.pattern.test(value)) {
+          result.errors.push({ type: 'format', field: rule.path, message: `${rule.path} does not match expected pattern` });
+        }
+      }
+
+      runExtendedValidation(businessRoot, result);
+
+      if (schema.extractionMap) {
+        for (const [label, path] of Object.entries(schema.extractionMap)) {
+          if (path.includes('@')) {
+            const [elemPath, attr] = path.split('@');
+            const el = resolveXMLPath(businessRoot, elemPath);
+            if (el) { const v = el.getAttribute(attr); if (v) result.extracted[label] = v; }
+          } else {
+            const el = resolveXMLPath(businessRoot, path);
+            if (el && el.textContent.trim()) result.extracted[label] = el.textContent.trim();
+          }
+        }
+      }
+
+      result.valid = result.errors.length === 0;
+      return result;
+    }
+
+    // ─── LINE FINDER ───
+    function findLineForPath(xmlString, path) {
+      if (!path) return null;
+      const lastTag = path.split('/').pop();
+      const lines = xmlString.split('\n');
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].includes(`<${lastTag}>`) || lines[i].includes(`<${lastTag} `)) return i + 1;
+      }
+      return null;
+    }
+
+    function markErrorLines(highlightedHtml, errorLines, warningLines) {
+      return highlightedHtml.split('\n').map((line, i) => {
+        const n = i + 1;
+        if (errorLines.includes(n)) return `<span class="error-line">${line}</span>`;
+        if (warningLines.includes(n)) return `<span class="warning-line">${line}</span>`;
+        return line;
+      }).join('\n');
+    }
+
+    // ─── RENDER RESULTS ───
+    let lastResult = null;
+
+    function renderResults(result, xmlString) {
+      lastResult = result;
+      resultsContent.innerHTML = '';
+
+      const summary = document.createElement('div');
+      summary.className = `validation-summary ${result.valid ? 'summary-valid' : 'summary-invalid'}`;
+      const errCount = result.errors.length;
+      const warnCount = result.warnings.length;
+      summary.innerHTML = `
+        <span uk-icon="icon: ${result.valid ? 'check' : 'close'}; ratio: 1.1"></span>
+        <span>${result.valid ? 'Valid message' : `${errCount} error${errCount !== 1 ? 's' : ''} found`}${warnCount > 0 ? `, ${warnCount} warning${warnCount !== 1 ? 's' : ''}` : ''}</span>
+        ${result.messageType ? `<span class="msg-type-badge">${result.messageType}</span>` : ''}
+      `;
+      resultsContent.appendChild(summary);
+
+      if (errCount > 0) {
+        const section = document.createElement('div');
+        section.innerHTML = `<div class="section-header">Errors <span class="section-count">${errCount}</span></div>`;
+        result.errors.forEach((err) => {
+          const item = document.createElement('div');
+          item.className = 'error-item type-error';
+          item.innerHTML = `
+            <span class="ei-icon" uk-icon="icon: close; ratio: 0.7"></span>
+            <div>
+              <span>${esc(err.message)}</span>
+              ${err.field ? `<span class="field-path">${esc(err.field)}</span>` : ''}
+            </div>
+          `;
+          if (err.field) item.addEventListener('click', () => scrollToField(xmlString, err.field));
+          section.appendChild(item);
+        });
+        resultsContent.appendChild(section);
+      }
+
+      if (warnCount > 0) {
+        const section = document.createElement('div');
+        section.innerHTML = `<div class="section-header">Warnings <span class="section-count">${warnCount}</span></div>`;
+        result.warnings.forEach((w) => {
+          const item = document.createElement('div');
+          item.className = 'error-item type-warning';
+          item.innerHTML = `
+            <span class="ei-icon" uk-icon="icon: warning; ratio: 0.7"></span>
+            <div>
+              <span>${esc(w.message)}</span>
+              ${w.field ? `<span class="field-path">${esc(w.field)}</span>` : ''}
+            </div>
+          `;
+          section.appendChild(item);
+        });
+        resultsContent.appendChild(section);
+      }
+
+      const fieldEntries = Object.entries(result.extracted);
+      if (fieldEntries.length > 0) {
+        const section = document.createElement('div');
+        section.innerHTML = `<div class="section-header">Extracted Fields <span class="section-count">${fieldEntries.length}</span></div>`;
+        const grid = document.createElement('div');
+        grid.className = 'fields-grid';
+
+        fieldEntries.forEach(([label, value]) => {
+          const row = document.createElement('div');
+          row.className = 'field-row';
+          let displayValue = esc(value);
+
+          if (label.toLowerCase().includes('amount') && /^\d+(\.\d+)?$/.test(value)) {
+            displayValue = `<span class="amount">${parseFloat(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>`;
+          }
+          if (label.toLowerCase().includes('currency')) {
+            displayValue = `<span class="currency-tag">${esc(value)}</span>`;
+          }
+          if (label.toLowerCase().includes('status')) {
+            const ac = ['ACCP','ACSC','ACSP','ACTC'], rj = ['RJCT','CANC'], pd = ['PDNG','RCVD'];
+            let cls = ac.includes(value) ? 'status-accepted' : rj.includes(value) ? 'status-rejected' : pd.includes(value) ? 'status-pending' : '';
+            if (cls) displayValue = `<span class="status-badge ${cls}">${esc(value)}</span>`;
+          }
+
+          row.innerHTML = `<span class="field-label">${esc(label)}</span><span class="field-value">${displayValue}</span>`;
+          grid.appendChild(row);
+        });
+        section.appendChild(grid);
+        resultsContent.appendChild(section);
+      }
+
+      const actions = document.createElement('div');
+      actions.className = 'actions-row';
+      actions.innerHTML = `
+        <button class="uk-button uk-button-default uk-button-small" id="copy-report-btn"><span uk-icon="icon: copy; ratio: 0.7"></span> Copy JSON</button>
+        <button class="uk-button uk-button-default uk-button-small" id="compare-sample-btn"><span uk-icon="icon: git-branch; ratio: 0.7"></span> Compare</button>
+        <button class="uk-button uk-button-default uk-button-small" id="export-pdf-btn"><span uk-icon="icon: print; ratio: 0.7"></span> Export PDF</button>
+      `;
+      resultsContent.appendChild(actions);
+
+      document.getElementById('copy-report-btn').addEventListener('click', copyReport);
+      document.getElementById('compare-sample-btn').addEventListener('click', () => showDiff(xmlString));
+      document.getElementById('export-pdf-btn').addEventListener('click', () => exportPDF(result));
+
+      if (hljsAvailable && xmlString.trim()) {
+        const el = result.errors.filter(e => e.field).map(e => findLineForPath(xmlString, e.field)).filter(Boolean);
+        const wl = result.warnings.filter(w => w.field).map(w => findLineForPath(xmlString, w.field)).filter(Boolean);
+        codeBlock.innerHTML = markErrorLines(hljs.highlight(xmlString, { language: 'xml' }).value, el, wl);
+      }
+
+      statusText.textContent = result.valid ? 'Validation passed' : `${errCount} error(s) detected`;
+    }
+
+    function scrollToField(xmlString, field) {
+      const line = findLineForPath(xmlString, field);
+      if (line === null) return;
+      const lineHeight = parseFloat(getComputedStyle(textarea).lineHeight) || 20;
+      textarea.scrollTop = Math.max(0, (line - 3) * lineHeight);
+      highlightPre.scrollTop = textarea.scrollTop;
+    }
+
+    // ─── VALIDATE BUTTON ───
+    validateBtn.addEventListener('click', () => {
+      const xmlString = textarea.value.trim();
+      if (!xmlString) { resultsContent.innerHTML = ''; resultsContent.appendChild(emptyState); return; }
+      const forceType = messageTypeSelect.value;
+      renderResults(validate(xmlString, forceType === 'auto' ? null : forceType), xmlString);
+    });
+
+    textarea.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); validateBtn.click(); }
+    });
+
+    // ─── COPY REPORT ───
+    function copyReport() {
+      if (!lastResult) return;
+      const report = {
+        timestamp: new Date().toISOString(),
+        messageType: lastResult.messageType,
+        valid: lastResult.valid,
+        errorCount: lastResult.errors.length,
+        warningCount: lastResult.warnings.length,
+        errors: lastResult.errors.map(e => ({ type: e.type, field: e.field, message: e.message })),
+        warnings: lastResult.warnings.map(w => ({ type: w.type, field: w.field, message: w.message })),
+        extractedFields: lastResult.extracted,
+      };
+      navigator.clipboard.writeText(JSON.stringify(report, null, 2))
+        .then(() => showToast('Report copied to clipboard'))
+        .catch(() => showToast('Report copied to clipboard'));
+    }
+
+    // ─── DIFF VIEW ───
+    function lcsLines(a, b) {
+      const m = a.length, n = b.length;
+      const dp = Array.from({ length: m + 1 }, () => new Uint16Array(n + 1));
+      for (let i = 1; i <= m; i++)
+        for (let j = 1; j <= n; j++)
+          dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
+      const res = [];
+      let i = m, j = n;
+      while (i > 0 && j > 0) {
+        if (a[i-1] === b[j-1]) { res.unshift({ type: 'same', text: a[--i] }); j--; }
+        else if (dp[i-1][j] >= dp[i][j-1]) res.unshift({ type: 'removed', text: a[--i] });
+        else res.unshift({ type: 'added', text: b[--j] });
+      }
+      while (i > 0) res.unshift({ type: 'removed', text: a[--i] });
+      while (j > 0) res.unshift({ type: 'added', text: b[--j] });
+      return res;
+    }
+
+    async function showDiff(userXml) {
+      const type = messageTypeSelect.value === 'auto'
+        ? (lastResult?.messageType ? Object.keys(schemaRegistry).find(k => schemaRegistry[k].messageType === lastResult.messageType) : null)
+        : messageTypeSelect.value;
+      if (!type) { showToast('Cannot determine message type', true); return; }
+
+      const filename = sampleFileMap[type] || 'pacs008';
+      let sampleXml;
+      try {
+        const resp = await fetch(`./samples/${filename}-sample.xml`);
+        if (!resp.ok) throw new Error();
+        sampleXml = await resp.text();
+      } catch { showToast('Failed to load sample', true); return; }
+
+      const diff = lcsLines(userXml.split('\n'), sampleXml.split('\n'));
+      const leftPanel = document.getElementById('diff-left');
+      const rightPanel = document.getElementById('diff-right');
+      let lh = '', rh = '';
+      for (const d of diff) {
+        const e = esc(d.text || '');
+        if (d.type === 'same') { lh += `<span class="diff-line diff-same">${e}</span>\n`; rh += `<span class="diff-line diff-same">${e}</span>\n`; }
+        else if (d.type === 'removed') { lh += `<span class="diff-line diff-removed">${e}</span>\n`; rh += `<span class="diff-line">\n</span>\n`; }
+        else { lh += `<span class="diff-line">\n</span>\n`; rh += `<span class="diff-line diff-added">${e}</span>\n`; }
+      }
+      leftPanel.innerHTML = lh;
+      rightPanel.innerHTML = rh;
+
+      leftPanel.onscroll = () => { rightPanel.scrollTop = leftPanel.scrollTop; };
+      rightPanel.onscroll = () => { leftPanel.scrollTop = rightPanel.scrollTop; };
+
+      UIkit.modal('#diff-modal').show();
+    }
+
+    // ─── PDF EXPORT ───
+    function exportPDF(result) {
+      const errHtml = result.errors.length > 0
+        ? `<ul>${result.errors.map(e => `<li style="color:#DC3545;margin:4px 0">${esc(e.message)}</li>`).join('')}</ul>`
+        : '<p style="color:#198754">No errors found.</p>';
+      const warnHtml = result.warnings.length > 0
+        ? `<ul>${result.warnings.map(w => `<li style="color:#997404;margin:4px 0">${esc(w.message)}</li>`).join('')}</ul>` : '';
+      const fieldsHtml = Object.entries(result.extracted).map(([k,v]) =>
+        `<tr><td style="padding:8px 12px;border:1px solid #DEE2E6;font-weight:500">${esc(k)}</td><td style="padding:8px 12px;border:1px solid #DEE2E6;font-family:'IBM Plex Mono',monospace">${esc(v)}</td></tr>`
+      ).join('');
+
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>ISO 20022 Validation Report</title>
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+        <style>body{font-family:'IBM Plex Sans',sans-serif;padding:40px;max-width:800px;margin:0 auto;color:#212529;font-size:14px}
+        h1{font-size:20px;border-bottom:2px solid #212529;padding-bottom:8px}h2{font-size:15px;margin-top:24px;color:#6C757D}
+        table{border-collapse:collapse;width:100%;margin-top:8px}.meta{font-size:13px;color:#6C757D;margin:4px 0}
+        .badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:600}
+        .valid{background:#d1e7dd;color:#0f5132}.invalid{background:#f8d7da;color:#842029}</style></head><body>
+        <h1>ISO 20022 Validation Report</h1>
+        <p class="meta">Generated: ${new Date().toLocaleString()}</p>
+        <p class="meta">Message Type: <strong>${result.messageType || 'Unknown'}</strong></p>
+        <p><span class="badge ${result.valid ? 'valid' : 'invalid'}">${result.valid ? 'VALID' : 'INVALID'}</span></p>
+        <h2>Errors (${result.errors.length})</h2>${errHtml}
+        ${result.warnings.length > 0 ? `<h2>Warnings (${result.warnings.length})</h2>${warnHtml}` : ''}
+        <h2>Extracted Fields</h2><table>${fieldsHtml}</table>
+        <p style="margin-top:32px;font-size:11px;color:#ADB5BD">Generated by ISO 20022 Validator</p></body></html>`;
+
+      const w = window.open('', '_blank');
+      if (w) { w.document.write(html); w.document.close(); setTimeout(() => w.print(), 300); }
+      else showToast('Popup blocked', true);
+    }
+
+    // ─── UTILITIES ───
+    function esc(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+    function showToast(message, isError = false) {
+      const existing = document.querySelector('.toast-msg');
+      if (existing) existing.remove();
+      const t = document.createElement('div');
+      t.className = 'toast-msg';
+      if (isError) { t.style.background = 'var(--error)'; t.style.boxShadow = '0 4px 16px rgba(220,53,69,0.25)'; }
+      t.textContent = message;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2500);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.09">
+  <CstmrCdtTrfInitn>
+    <GrpHdr>
+      <MsgId>PAIN001-20250115-001</MsgId>
+      <CreDtTm>2025-01-15T10:30:00</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <CtrlSum>25000.00</CtrlSum>
+      <InitgPty>
+        <Nm>Horizon Logistics Ltd</Nm>
+      </InitgPty>
+    </GrpHdr>
+    <PmtInf>
+      <PmtInfId>PMT-BATCH-20250115-001</PmtInfId>
+      <PmtMtd>TRF</PmtMtd>
+      <NbOfTxs>1</NbOfTxs>
+      <CtrlSum>25000.00</CtrlSum>
+      <ReqdExctnDt>
+        <Dt>2025-01-16</Dt>
+      </ReqdExctnDt>
+      <Dbtr>
+        <Nm>Horizon Logistics Ltd</Nm>
+      </Dbtr>
+      <DbtrAcct>
+        <Id><IBAN>FR7630006000011234567890189</IBAN></Id>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId><BICFI>BNPAFRPP</BICFI></FinInstnId>
+      </DbtrAgt>
+      <CdtTrfTxInf>
+        <PmtId>
+          <EndToEndId>E2E-PAIN001-001</EndToEndId>
+        </PmtId>
+        <Amt>
+          <InstdAmt Ccy="EUR">25000.00</InstdAmt>
+        </Amt>
+        <ChrgBr>SHAR</ChrgBr>
+        <CdtrAgt>
+          <FinInstnId><BICFI>ABNANL2A</BICFI></FinInstnId>
+        </CdtrAgt>
+        <Cdtr>
+          <Nm>NorthStar Manufacturing BV</Nm>
+        </Cdtr>
+        <CdtrAcct>
+          <Id><IBAN>NL91ABNA0417164300</IBAN></Id>
+        </CdtrAcct>
+      </CdtTrfTxInf>
+    </PmtInf>
+  </CstmrCdtTrfInitn>
+</Document>

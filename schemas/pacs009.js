@@ -1,0 +1,37 @@
+export const pacs009Rules = {
+  messageType: 'pacs.009.001',
+  rootElement: 'FICdtTrf',
+  namespace: 'urn:iso:std:iso:20022:tech:xsd:pacs.009.001.08',
+  description: 'FI to FI Financial Institution Credit Transfer',
+  mandatoryPaths: [
+    'GrpHdr/MsgId',
+    'GrpHdr/CreDtTm',
+    'GrpHdr/NbOfTxs',
+    'GrpHdr/SttlmInf/SttlmMtd',
+    'CdtTrfTxInf/PmtId/EndToEndId',
+    'CdtTrfTxInf/IntrBkSttlmAmt',
+    'CdtTrfTxInf/Dbtr/FinInstnId',
+    'CdtTrfTxInf/Cdtr/FinInstnId',
+  ],
+  codeValues: {
+    'GrpHdr/SttlmInf/SttlmMtd': ['CLRG', 'COVE', 'INDA', 'INGA'],
+  },
+  formatRules: [
+    { path: 'GrpHdr/MsgId', maxLength: 35 },
+    { path: 'GrpHdr/CreDtTm', type: 'ISODateTime' },
+    { path: 'GrpHdr/NbOfTxs', pattern: /^\d{1,15}$/ },
+    { path: 'CdtTrfTxInf/IntrBkSttlmAmt', type: 'ActiveCurrencyAndAmount', attribute: 'Ccy' },
+    { path: 'CdtTrfTxInf/PmtId/EndToEndId', maxLength: 35 },
+  ],
+  extractionMap: {
+    'Message ID': 'GrpHdr/MsgId',
+    'Creation Date': 'GrpHdr/CreDtTm',
+    'Transactions': 'GrpHdr/NbOfTxs',
+    'Settlement Method': 'GrpHdr/SttlmInf/SttlmMtd',
+    'End-to-End ID': 'CdtTrfTxInf/PmtId/EndToEndId',
+    'Amount': 'CdtTrfTxInf/IntrBkSttlmAmt',
+    'Currency': 'CdtTrfTxInf/IntrBkSttlmAmt@Ccy',
+    'Debtor Institution BIC': 'CdtTrfTxInf/Dbtr/FinInstnId/BICFI',
+    'Creditor Institution BIC': 'CdtTrfTxInf/Cdtr/FinInstnId/BICFI',
+  },
+};

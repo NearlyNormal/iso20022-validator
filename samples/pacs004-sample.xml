@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.004.001.09">
+  <PmtRtr>
+    <GrpHdr>
+      <MsgId>PACS004-20250116-001</MsgId>
+      <CreDtTm>2025-01-16T08:15:00</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <SttlmInf><SttlmMtd>CLRG</SttlmMtd></SttlmInf>
+    </GrpHdr>
+    <TxInf>
+      <OrgnlGrpInf>
+        <OrgnlMsgId>PACS008-20250115-001</OrgnlMsgId>
+        <OrgnlMsgNmId>pacs.008.001.08</OrgnlMsgNmId>
+      </OrgnlGrpInf>
+      <OrgnlEndToEndId>E2E-PACS008-001</OrgnlEndToEndId>
+      <RtrdIntrBkSttlmAmt Ccy="EUR">10000.00</RtrdIntrBkSttlmAmt>
+      <IntrBkSttlmDt>2025-01-16</IntrBkSttlmDt>
+      <RtrRsnInf>
+        <Rsn><Cd>AC04</Cd></Rsn>
+      </RtrRsnInf>
+    </TxInf>
+  </PmtRtr>
+</Document>

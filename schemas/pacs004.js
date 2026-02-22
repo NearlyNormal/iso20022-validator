@@ -1,0 +1,43 @@
+export const pacs004Rules = {
+  messageType: 'pacs.004.001',
+  rootElement: 'PmtRtr',
+  namespace: 'urn:iso:std:iso:20022:tech:xsd:pacs.004.001.09',
+  description: 'Payment Return',
+  mandatoryPaths: [
+    'GrpHdr/MsgId',
+    'GrpHdr/CreDtTm',
+    'GrpHdr/NbOfTxs',
+    'GrpHdr/SttlmInf/SttlmMtd',
+    'TxInf/OrgnlGrpInf/OrgnlMsgId',
+    'TxInf/OrgnlGrpInf/OrgnlMsgNmId',
+    'TxInf/RtrdIntrBkSttlmAmt',
+    'TxInf/RtrRsnInf/Rsn/Cd',
+  ],
+  codeValues: {
+    'GrpHdr/SttlmInf/SttlmMtd': ['CLRG', 'COVE', 'INDA', 'INGA'],
+    'TxInf/RtrRsnInf/Rsn/Cd': [
+      'AC01', 'AC04', 'AG01', 'AM04',
+      'BE04', 'DT01', 'FF01', 'MD01',
+      'MS02', 'RC01',
+      'RR01', 'RR02', 'RR03', 'RR04',
+      'TM01',
+    ],
+  },
+  formatRules: [
+    { path: 'GrpHdr/MsgId', maxLength: 35 },
+    { path: 'GrpHdr/CreDtTm', type: 'ISODateTime' },
+    { path: 'GrpHdr/NbOfTxs', pattern: /^\d{1,15}$/ },
+    { path: 'TxInf/RtrdIntrBkSttlmAmt', type: 'ActiveCurrencyAndAmount', attribute: 'Ccy' },
+  ],
+  extractionMap: {
+    'Message ID': 'GrpHdr/MsgId',
+    'Creation Date': 'GrpHdr/CreDtTm',
+    'Transactions': 'GrpHdr/NbOfTxs',
+    'Settlement Method': 'GrpHdr/SttlmInf/SttlmMtd',
+    'Original Message ID': 'TxInf/OrgnlGrpInf/OrgnlMsgId',
+    'Original Message Type': 'TxInf/OrgnlGrpInf/OrgnlMsgNmId',
+    'Return Amount': 'TxInf/RtrdIntrBkSttlmAmt',
+    'Return Currency': 'TxInf/RtrdIntrBkSttlmAmt@Ccy',
+    'Return Reason': 'TxInf/RtrRsnInf/Rsn/Cd',
+  },
+};
