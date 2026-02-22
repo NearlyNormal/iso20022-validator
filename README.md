@@ -184,7 +184,7 @@ These appear as disabled entries in the profile dropdown.
   - Lynx (high-value, ISO-native)
   - RTR (Real-Time Rail)
 - **Asia-Pacific**
-  - Singapore FAST
+  - Singapore FAST (most prevalent)
   - Singapore MEPS+
   - Australia NPP
   - India RTGS
