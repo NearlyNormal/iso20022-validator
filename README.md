@@ -181,6 +181,11 @@ These appear as disabled entries in the profile dropdown.
   - Australia NPP
   - India RTGS
   - India UPI ISO overlay
+- **Latin America**
+  - Brazil SPI/Pix (ISO 20022-native, Central Bank of Brazil)
+  - Mexico SPEI (migration to ISO 20022 announced)
+  - Colombia Bre-B (early-stage interoperability platform)
+  - Chile TEF (early-stage migration planning)
 - **Switzerland**
   - SIC ISO 20022
 - **Corporate**
